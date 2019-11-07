@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 class SimulatedAnnealing(object):
 
-    def __init__(self, name, coordinates, randomSeed = 0, temperature = 0, alpha = 0.995, max_iterations=100000, stop_temp = 1e-8):
+    def __init__(self, name, coordinates, randomSeed = 0, temperature = 1e+10, alpha = 0.995, max_iterations=100000, stop_temp = 1e-8):
         '''
         Constructor for Simulated Annealing problem.
 
@@ -34,7 +34,7 @@ class SimulatedAnnealing(object):
         self.alpha = alpha
         self.stop = max_iterations
         self.stop_temp = stop_temp
-        self.temperature = math.sqrt(self.N) if temperature == 0 else temperature
+        self.temperature = temperature
 
         # Solutions
         self.best_solution = None
@@ -81,7 +81,15 @@ class SimulatedAnnealing(object):
         return solution, fitness
 
     def simulated_annealing(self):
-        
+        '''
+        Simulate annealing process:
+        1. Generate candidate solution via 2-opt strategy
+        2. Decide to accept candidate based on either best fitness comparison or 
+           temperature-bound probability
+        3. Iterate by lowering temperature
+
+        TODO: Restarts
+        '''
         # Start with a random tour
         self.current_solution, self.current_fit = self.random_tour()
 
