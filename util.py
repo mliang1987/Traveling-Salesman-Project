@@ -5,6 +5,7 @@ Author: Shichao Liang
 import matplotlib.pyplot as plt
 import glob
 import os
+import re
 
 def read_tsp_file(file_name):
     '''
@@ -16,29 +17,24 @@ def read_tsp_file(file_name):
     Returns: Dictionary of coordinates mapping node ID to euclidean coordinates (tuple)
     '''
     f = open(file_name, "r")
-    if f.mode == "r":
-        contents = f.readlines()
+    contents = list(filter(None, [re.findall(r'[\d-]+\s[\d.-]+\s[\d.-]+',line) for line in f]))
     f.close()
-    contents = [(line.rstrip()).split(" ") for line in contents[5:-1]]
+    contents = [(line[0].rstrip()).split(" ") for line in contents]
     coordinates = {int(coord[0]):(float(coord[1]),float(coord[2])) for coord in contents}
     return coordinates
 
 def plotTSP(path, coords):
     pass
 
-def test_util(path):
-    '''
-    Test function
-    '''
-    coordinates = read_tsp_file(path)
-    print(coordinates)
-
 def get_all_files(path = 'Data/'):
+    '''
+    '''
+    all_coordinates = {}
     os.chdir("Data/")
     files = glob.glob('*.tsp')
-    print(files)
     for file in files:
-        test_util(file)
+        all_coordinates[file.split(".")[0]] = read_tsp_file(file)
+    return all_coordinates
 
 if __name__ == "__main__":
     get_all_files()
