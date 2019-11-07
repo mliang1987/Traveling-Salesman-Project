@@ -28,6 +28,12 @@ def plotTSP(path, coords):
 
 def get_all_files(path = 'Data/'):
     '''
+    Given a folder path, reads all TSP files in the directory into a dictionary of coordinates.
+
+    Parameters:
+    path: folder path of the TSP data files.
+
+    Returns: Dictionary of coordinates mapping file name to dictionary of coordinates
     '''
     all_coordinates = {}
     os.chdir("Data/")
