@@ -110,7 +110,9 @@ class SimulatedAnnealing(object):
                 self.current_fit = candidate_fit
                 self.current_solution = candidate
             else:
-                if random.random() < math.exp(-abs(candidate_fit - self.current_fit)/self.temperature):
+                p = math.exp(-abs(candidate_fit - self.current_fit)/self.temperature)
+                r = random.random()
+                if r < p:
                     self.current_fit = candidate_fit
                     self.current_solution = candidate
             if self.current_fit < self.best_fit:
@@ -138,11 +140,14 @@ class SimulatedAnnealing(object):
 
    
 def simulated_annealing_tests():
+    '''
+    Tests out simulated annealing algorithm using default parameters.
+    '''
     all_coordinates = ut.get_all_files()
     for city, coordinates in all_coordinates.items():
         sa = SimulatedAnnealing(city, coordinates, alpha = 0.999)
         sa.simulated_annealing()
-        ut.plotTSP(sa.best_solution, coordinates, title = "Simulated Annealing: "+city, save_path = "Plots/SA/"+city+".png")
+        ut.plotTSP(sa.best_solution, coordinates, title = "Simulated Annealing: "+city, save_path = "Plots/SA/"+city+".png", show_plots = True)
     pass
 
 if __name__ == "__main__":

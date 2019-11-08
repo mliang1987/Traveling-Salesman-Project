@@ -49,7 +49,7 @@ def distance_helper(coord_array):
     segdists = np.hypot(deltas[:,0], deltas[:,1])
     return int(np.sum(np.around(segdists, decimals = 0)))
 
-def plotTSP(tour, coords, title = None, subtitled = True, save_path = None):
+def plotTSP(tour, coords, title = None, subtitled = True, save_path = None, show_plots = False):
     '''
     Generates a plot of a tour, given the tour and the dictionary of coordinates.
 
@@ -72,8 +72,7 @@ def plotTSP(tour, coords, title = None, subtitled = True, save_path = None):
         plt.axes([.1,.1,.8,.7])
         plt.figtext(.5,.9,title, fontsize=18, ha='center')
         if subtitled:
-            subtitle = "\nTour with distance {}\n".format(distance) + ', '.join([str(elem) for elem in tour])
-            plt.figtext(.5,.85,subtitle,fontsize=8,ha='center')
+            plt.figtext(.5,.85,"\nTour with distance {}\n".format(distance),fontsize=8,ha='center')
 
     # Plot data
     plt.scatter(x,y, c='r', marker = 'o')
@@ -87,7 +86,8 @@ def plotTSP(tour, coords, title = None, subtitled = True, save_path = None):
     # Figure saving
     if save_path != None:
         plt.savefig(save_path)
-    plt.show()
+    if show_plots:
+        plt.show()
 
 
 def get_all_files(path = 'Data/'):
@@ -98,6 +98,8 @@ def get_all_files(path = 'Data/'):
     path: folder path of the TSP data files.
 
     Returns: Dictionary of coordinates mapping file name to dictionary of coordinates
+
+    TODO: Currently hard-coded paths, need to conform to spec on project desc.
     '''
     all_coordinates = {}
     os.chdir("Data/")
@@ -107,4 +109,4 @@ def get_all_files(path = 'Data/'):
     return all_coordinates
 
 if __name__ == "__main__":
-    get_all_files()
+    print(get_all_files())

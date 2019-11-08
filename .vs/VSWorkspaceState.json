@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Data"
+    "\\Data",
+    "\\Data\\Plots"
   ],
-  "SelectedNode": "\\Data\\solutions.csv",
+  "SelectedNode": "\\Data\\Plots",
   "PreviewInSolutionExplorer": false
 }
