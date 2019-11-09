@@ -147,7 +147,8 @@ def simulated_annealing_tests():
     for city, coordinates in all_coordinates.items():
         sa = SimulatedAnnealing(city, coordinates, alpha = 0.999)
         sa.simulated_annealing()
-        ut.plotTSP(sa.best_solution, coordinates, title = "Simulated Annealing: "+city, save_path = "Plots/SA/"+city+".png", show_plots = True)
+        print("Results for {}:".format(city))
+        ut.plotTSP(sa.best_solution, coordinates, title = "Simulated Annealing: "+city, save_path = "Plots/SA/"+city+".png", verbose = True)
     pass
 
 if __name__ == "__main__":

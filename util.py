@@ -49,7 +49,7 @@ def distance_helper(coord_array):
     segdists = np.hypot(deltas[:,0], deltas[:,1])
     return int(np.sum(np.around(segdists, decimals = 0)))
 
-def plotTSP(tour, coords, title = None, subtitled = True, save_path = None, show_plots = False):
+def plotTSP(tour, coords, title = None, subtitled = True, save_path = None, show_plots = False, verbose = False):
     '''
     Generates a plot of a tour, given the tour and the dictionary of coordinates.
 
@@ -62,6 +62,7 @@ def plotTSP(tour, coords, title = None, subtitled = True, save_path = None, show
     subtitled: boolean for if a subtitle for the tour should be added.
     save_path: file path in which to save the figure.
     '''
+    plt.figure()
     # Preprocessing tour data.
     coord_array = np.asarray([coords[i] for i in tour])
     distance = distance_helper(coord_array)
@@ -82,8 +83,9 @@ def plotTSP(tour, coords, title = None, subtitled = True, save_path = None, show
     for i in range(0,len(x)-1):
         plt.arrow(x[i], y[i], (x[i+1] - x[i]), (y[i+1] - y[i]), head_width = arrow_scale,
                 color = 'b', length_includes_head = True)
- 
     # Figure saving
+    if verbose:
+        print("\tDistance: ",distance)
     if save_path != None:
         plt.savefig(save_path)
     if show_plots:
