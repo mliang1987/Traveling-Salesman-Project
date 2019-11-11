@@ -30,9 +30,9 @@ class BranchAndBoundConfiguration:
     # Prim's algorithm: Initialize the tree with any vertex that is not in the path. Then, grow the
     # tree one edge at a time until all the vertices that are not in the path are covered.
     root = None
-    Q = []
-    cost = {}
-    total_prim_cost = 0
+    Q = []      # Priority queue
+    cost = {}   # Cost to add a vertex to the tree
+    mst_cost = 0
     for v in range(N):
       if root is None and v not in path:
         root = v
@@ -43,7 +43,7 @@ class BranchAndBoundConfiguration:
     while Q:
       (weight, v) = heappop(Q)
       if v not in tree:
-        total_prim_cost += weight
+        mst_cost += weight
         tree.add(v)
         for u in range(N):
           if u not in path and u not in tree and cost[u] > G[v][u]:
@@ -51,8 +51,11 @@ class BranchAndBoundConfiguration:
             heappush(Q, (G[v][u], u))
 
     # Calculate a lower bound of any solution derived from this configuration: cost of the path +
-    # cost of the minimum spanning tree covering the vertices that are not in the path.
-    self._lower_bound = self.get_cost() + total_prim_cost
+    # cost of the minimum spanning tree covering the vertices that are not in the path + minimum
+    # cost of joining the path ends to that minimum spanning tree.
+    self._lower_bound = self.get_cost() + mst_cost + \
+        min([G[path[0]][v] for v in range(N) if v not in path]) if len(path) > 0 else 0 + \
+        min([G[path[-1]][v] for v in range(N) if v not in path]) if len(path) > 1 else 0
 
   def expand(self, v):
     """Return an expanded configuration with the specified vertex appended to the path.
