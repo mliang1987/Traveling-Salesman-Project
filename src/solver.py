@@ -44,7 +44,7 @@ class Solver:
       for city_b in range(city_a + 1, self._N):
         self._G[city_a][city_b] = self._G[city_b][city_a] = int(decimal.Decimal(math.sqrt((
             cities[city_a][1] - cities[city_b][1]) ** 2 +
-            (cities[city_a][2] - cities[city_b][1]) ** 2
+            (cities[city_a][2] - cities[city_b][2]) ** 2
         )).quantize(decimal.Decimal(1), rounding=decimal.ROUND_UP))
     print("[%s] Built the graph.\n\tdimension = %s" % (time.time(), self._N))
 
