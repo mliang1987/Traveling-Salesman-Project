@@ -80,7 +80,7 @@ class SimulatedAnnealing(object):
         self.fitness_list.append(fitness)
         return solution, fitness
 
-    def simulated_annealing(self):
+    def simulated_annealing(self, restart = False, current_solution = None, current_fit = None):
         '''
         Simulate annealing process:
         1. Generate candidate solution via 2-opt strategy
@@ -91,7 +91,11 @@ class SimulatedAnnealing(object):
         TODO: Restarts
         '''
         # Start with a random tour
-        self.current_solution, self.current_fit = self.random_tour()
+        if not restart:
+            self.current_solution, self.current_fit = self.nearest_neighbors_tour()
+        else:
+            self.current_solution = current_solution
+            self.current_fit = current_fit
 
         # While annealing conditions are still met...
         while self.temperature >= self.stop_temp and self.iteration < self.stop:
