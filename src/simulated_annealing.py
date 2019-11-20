@@ -3,6 +3,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 
+
 class SimulatedAnnealing(object):
 
     def __init__(self, name, coordinates, randomSeed = 0, temperature = 1e+10, alpha = 0.995, max_iterations=100000, stop_temp = 1e-8):
