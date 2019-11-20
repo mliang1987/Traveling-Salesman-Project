@@ -21,6 +21,7 @@ import time
 from branch_and_bound import BranchAndBoundSolver
 
 
+
 def main():
   # Parse command line arguments.
   cli_args = dict((sys.argv[1 + i], sys.argv[2 + i]) for i in range(0, len(sys.argv[1:]), 2))
