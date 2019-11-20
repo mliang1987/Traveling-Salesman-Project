@@ -2,6 +2,7 @@ import util as ut
 import math
 import matplotlib.pyplot as plt
 from heapq import heappush, heappop
+import time
 
 class MST(object):
 
@@ -36,7 +37,7 @@ class MST(object):
         full_walk = []
         full_walk = self.DFS(full_walk,child_nodes,1)
         solution = self.remove_duplicates(full_walk)
-        return solution
+        self.solution = solution
 
     def prim(self, coordinates):
         root = 1
@@ -63,16 +64,19 @@ class MST(object):
 
     def parents_to_children(self, parent_nodes):
         child_nodes = {}
+        for parent in range(1,self.N+1):
+            child_nodes[parent] = []
         for child in parent_nodes:
             parent = parent_nodes[child]
-            child_nodes[parent] = child
+            if parent is not None:
+                child_nodes[parent].append(child)
         return child_nodes
 
     def DFS(self, visited, child_nodes, node):
         if node not in visited:
             visited.append(node)
             for child in child_nodes[node]:
-                DFS(visited, child_nodes, child)
+                self.DFS(visited, child_nodes, child)
         return visited
 
     def remove_duplicates(self, full_walk):
@@ -98,19 +102,25 @@ class MST(object):
         x2,y2 = self.coordinates[n2]
         return math.sqrt((x1-x2)**2 +(y1-y2)**2)
 
-   
+
 def MST_tests():
     '''
     Tests out MST algorithm using default parameters.
     '''
+    start = time.time() 
     all_coordinates = ut.get_all_files()
     for city, coordinates in all_coordinates.items():
+        #print('city: ',city)
+        #print('coordinates: ',coordinates)
         #print(coordinates)
         mst = MST(city, coordinates)
         mst.MST()
         print("Results for {}:".format(city))
-        ut.plotTSP(mst.solution, coordinates, title = "MST: "+city, save_path = "Plots/mst/"+city+".png", verbose = True)
+        #print('solution: ',mst.solution)
+        ut.plotTSP(mst.solution, coordinates, title = "MST: "+city, save_path = "Plots/MST/"+city+".png", verbose = True)
     pass
+    end = time.time()
+    print('Time elapsed:',end-start)
 
 if __name__ == "__main__":
     MST_tests()
