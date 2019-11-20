@@ -8,7 +8,7 @@ import time
 
 class GeneticAlgorithm():
 
-	def __init__(self, name, coordinates, pop_size = 300, max_iteration_time = 600, num_crossovers = 150, num_mutation = 150):
+	def __init__(self, name, coordinates, pop_size = 400, max_iteration_time = 600, num_crossovers = 180, num_mutation = 400):
 		self.coordinates = coordinates
 		self.name = name
 		self.N = len(coordinates)
@@ -208,7 +208,7 @@ def genetic_tests():
 		ga = GeneticAlgorithm(city, coordinates)
 		result,_ = ga.GeneticAlgo()
 		print("Results for {}:".format(city))
-		ut.plotTSP(result, coordinates, title = "Genetic Algorithm: "+city, save_path = "C:/Users/LBJ/Desktop/CANVAS/Algo/CSE-6140---Project-master/Data/Plots/GA/"+city+".png", verbose = True)
+		ut.plotTSP(result, coordinates, title = "Genetic Algorithm: "+city, save_path = "C:/Users/LBJ/Desktop/CANVAS/Algo/CSE-6140---Project-master/Data/Plots/GA3/"+city+".png", verbose = True)
 	pass
 
 if __name__ == "__main__":
