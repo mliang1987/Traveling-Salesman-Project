@@ -19,7 +19,11 @@ class MST(object):
         self.name = name
         self.path = []
         self.N = len(coordinates)
-        self.nodes = list(self.coordinates.keys())
+        self.nodes = set(self.coordinates.keys())
+
+        self.root = 1
+        self.non_root_nodes = self.nodes.copy()
+        self.non_root_nodes.discard(self.root)
 
         # Solutions
         self.solution = [] #tour path
@@ -34,28 +38,28 @@ class MST(object):
         '''
         parent_nodes = self.prim(self.coordinates)
         child_nodes = self.parents_to_children(parent_nodes) #adjacency list
-        full_walk = []
-        full_walk = self.DFS(full_walk,child_nodes,1)
-        solution = self.remove_duplicates(full_walk)
+        euler_walk = []
+        euler_walk = self.DFS(euler_walk,child_nodes,1)
+        solution = self.remove_duplicates(euler_walk)
+        solution.append(self.root)
         self.solution = solution
 
     def prim(self, coordinates):
-        root = 1
         Q = []      # Priority queue
         cost = {}   # Cost to add a vertex to the tree
         pred = {}   # Predecessor Nodes
-        pred[root] = None
+        pred[self.root] = None
 
         #Initialize all other costs as distance to root
-        for v in range(2,self.N+1):
-            cost[v] = self.distance(root,v)
-            heappush(Q, (self.distance(root,v), v))
-            pred[v] = root
-        tree = set([root])
+        for v in self.non_root_nodes:
+            cost[v] = self.distance(self.root,v)
+            heappush(Q, (self.distance(self.root,v), v))
+            pred[v] = self.root
+        tree = set([self.root])
         while Q:
             (weight, v) = heappop(Q)
             tree.add(v)
-            for u in range(1,self.N+1):
+            for u in self.non_root_nodes:
                 if u not in tree and cost[u] > self.distance(v,u):
                     cost[u] = self.distance(v,u)
                     heappush(Q, (self.distance(v,u), u))
@@ -64,7 +68,7 @@ class MST(object):
 
     def parents_to_children(self, parent_nodes):
         child_nodes = {}
-        for parent in range(1,self.N+1):
+        for parent in self.nodes:
             child_nodes[parent] = []
         for child in parent_nodes:
             parent = parent_nodes[child]
@@ -110,13 +114,14 @@ def MST_tests():
     start = time.time() 
     all_coordinates = ut.get_all_files()
     for city, coordinates in all_coordinates.items():
-        #print('city: ',city)
+        print('city: ',city)
         #print('coordinates: ',coordinates)
         #print(coordinates)
         mst = MST(city, coordinates)
         mst.MST()
         print("Results for {}:".format(city))
-        #print('solution: ',mst.solution)
+        print("N: ",mst.N)
+        print('solution: ',mst.solution)
         ut.plotTSP(mst.solution, coordinates, title = "MST: "+city, save_path = "Plots/MST/"+city+".png", verbose = True)
     pass
     end = time.time()
