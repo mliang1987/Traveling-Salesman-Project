@@ -57,7 +57,7 @@ class SimulatedAnnealing(object):
         self.trace = []
         self.result = []
         #self.convergence = min(10, int(self.N/2))
-        self.convergence = min(10, int(self.N/2))
+        self.convergence = min(15, int(self.N/2))
         self.restart_count = 0
         self.tour_flag = tour_flag
 
@@ -216,8 +216,8 @@ def simulated_annealing_single(file_path, random_seed, time_start, max_time):
     best_solution = sa.best_solution
     while max_time-(time.time()-time_start)> sa.time_delta and sa.best_fit not in sa.solutions:
         sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-9, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 0)
-        sa.best_fit = best_fit
-        sa.best_solution = best_solution
+        #sa.best_fit = best_fit
+        #sa.best_solution = best_solution
         sa.simulated_annealing(restart = True)
         if(sa.best_fit < best_fit):
             best_fit = sa.best_fit
