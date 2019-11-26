@@ -4,6 +4,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 import pandas as pd
+import statistics
 from scipy.spatial import distance_matrix
 
 
@@ -216,7 +217,7 @@ def simulated_annealing_single(file_path, random_seed, time_start, max_time):
     best_fit = sa.best_fit
     best_solution = sa.best_solution
     while max_time-(time.time()-time_start)> sa.time_delta and sa.best_fit not in sa.solutions:
-        sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-9, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 0)
+        sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-9, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 1)
         sa.best_fit = best_fit
         sa.best_solution = best_solution
         sa.simulated_annealing(restart = True)
@@ -224,18 +225,28 @@ def simulated_annealing_single(file_path, random_seed, time_start, max_time):
             best_fit = sa.best_fit
             best_solution = sa.best_solution
     print("Results for {}: {}\n\tFitness: {}\n\tTime: {}".format(file_path, best_solution, best_fit, time.time()-time_start))
+    return best_fit
 
 if __name__ == "__main__":
-    simulated_annealing_single("Data\\Atlanta.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\Berlin.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\Boston.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\Champaign.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\Cincinnati.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\Denver.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\NYC.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\Philadelphia.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\Roanoke.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\SanFrancisco.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\Toronto.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\UKansasState.tsp", int(time.time()), time.time(), 600)
-    #simulated_annealing_single("Data\\UMissouri.tsp", int(time.time()), time.time(), 600)
+    times = []
+    fits = []
+    for i in range(5):
+        start_time = time.time()
+        #bf = simulated_annealing_single("Data\\Atlanta.tsp", int(time.time()), start_time, 600)
+        bf = simulated_annealing_single("Data\\Berlin.tsp", int(time.time()), start_time, 600)
+        #simulated_annealing_single("Data\\Boston.tsp", int(time.time()), time.time(), 600)
+        #simulated_annealing_single("Data\\Champaign.tsp", int(time.time()), time.time(), 600)
+        #simulated_annealing_single("Data\\Cincinnati.tsp", int(time.time()), time.time(), 600)
+        #simulated_annealing_single("Data\\Denver.tsp", int(time.time()), time.time(), 600)
+        #simulated_annealing_single("Data\\NYC.tsp", int(time.time()), time.time(), 600)
+        #simulated_annealing_single("Data\\Philadelphia.tsp", int(time.time()), time.time(), 600)
+        #simulated_annealing_single("Data\\Roanoke.tsp", int(time.time()), time.time(), 600)
+        #simulated_annealing_single("Data\\SanFrancisco.tsp", int(time.time()), time.time(), 600)
+        #simulated_annealing_single("Data\\Toronto.tsp", int(time.time()), time.time(), 600)
+        #simulated_annealing_single("Data\\UKansasState.tsp", int(time.time()), time.time(), 600)
+        #simulated_annealing_single("Data\\UMissouri.tsp", int(time.time()), time.time(), 600)
+        fits.append(bf)
+        times.append(time.time()-start_time)
+    print(statistics.mean(times))
+    print(statistics.mean(fits))
+    
