@@ -28,7 +28,7 @@ class SimulatedAnnealing(object):
         self.time_delta = 0
         self.initial_temperature = temperature
         self.coordinates = coordinates
-        self.distances = ut.calculate_distance_matrix(self.coordinates)
+        self.distance_matrix = ut.calculate_distance_matrix(self.coordinates)
         self.name = name
         self.path = []
         self.N = len(coordinates)
@@ -189,9 +189,10 @@ class SimulatedAnnealing(object):
 
         Returns: floating point Euclidean distance between two nodes
         '''
-        x1,y1 = self.coordinates[n1]
-        x2,y2 = self.coordinates[n2]
-        return math.sqrt((x1-x2)**2 +(y1-y2)**2)
+        return self.distance_matrix.iloc[n1-1][n2]
+        #x1,y1 = self.coordinates[n1]
+        #x2,y2 = self.coordinates[n2]
+        #return math.sqrt((x1-x2)**2 +(y1-y2)**2)
 
    
 def simulated_annealing_tests():
@@ -216,8 +217,8 @@ def simulated_annealing_single(file_path, random_seed, time_start, max_time):
     best_solution = sa.best_solution
     while max_time-(time.time()-time_start)> sa.time_delta and sa.best_fit not in sa.solutions:
         sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-9, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 0)
-        #sa.best_fit = best_fit
-        #sa.best_solution = best_solution
+        sa.best_fit = best_fit
+        sa.best_solution = best_solution
         sa.simulated_annealing(restart = True)
         if(sa.best_fit < best_fit):
             best_fit = sa.best_fit
@@ -226,15 +227,15 @@ def simulated_annealing_single(file_path, random_seed, time_start, max_time):
 
 if __name__ == "__main__":
     simulated_annealing_single("Data\\Atlanta.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\Berlin.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\Boston.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\Champaign.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\Cincinnati.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\Denver.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\NYC.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\Philadelphia.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\Roanoke.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\SanFrancisco.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\Toronto.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\UKansasState.tsp", int(time.time()), time.time(), 600)
-    simulated_annealing_single("Data\\UMissouri.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\Berlin.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\Boston.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\Champaign.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\Cincinnati.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\Denver.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\NYC.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\Philadelphia.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\Roanoke.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\SanFrancisco.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\Toronto.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\UKansasState.tsp", int(time.time()), time.time(), 600)
+    #simulated_annealing_single("Data\\UMissouri.tsp", int(time.time()), time.time(), 600)

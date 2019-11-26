@@ -117,4 +117,8 @@ def get_all_files(path = 'Data/'):
     return all_coordinates
 
 if __name__ == "__main__":
-    print(get_all_files())
+    all_coordinates = (get_all_files())
+    for city in all_coordinates.keys():
+        dm = calculate_distance_matrix(all_coordinates[city])
+        print(dm)
+        print(dm.iloc[3][2])
