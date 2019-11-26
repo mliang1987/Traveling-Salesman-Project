@@ -14,7 +14,6 @@ Command-line arguments:
   -seed [int]: Seed for random generator (optional).
 """
 
-
 import sys
 import time
 

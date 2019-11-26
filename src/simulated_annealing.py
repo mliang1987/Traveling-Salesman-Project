@@ -21,6 +21,7 @@ class SimulatedAnnealing(object):
         stop_temp: temperature at which to stop
         '''
         # Problem parameters
+        self.initial_temperature = temperature
         self.coordinates = coordinates
         self.name = name
         self.path = []
@@ -41,6 +42,15 @@ class SimulatedAnnealing(object):
         self.best_solution = None
         self.best_fit = float("Inf")
         self.fitness_list=[]
+
+        # Restarts
+        self.trace = []
+        self.result = []
+        self.convergence = 10
+        self.restart_count = 0
+
+    def calculate_distance_matrix(self):
+        pass
 
     def random_tour(self):
         '''
@@ -92,7 +102,7 @@ class SimulatedAnnealing(object):
         TODO: Restarts
         '''
         # Start with a random tour
-        if not restart:
+        if current_solution == None:
             self.current_solution, self.current_fit = self.nearest_neighbors_tour()
         else:
             self.current_solution = current_solution
@@ -129,6 +139,21 @@ class SimulatedAnnealing(object):
             self.iteration += 1
             self.fitness_list.append(self.current_fit)
 
+        self.trace.append(self.best_solution)
+        self.result.append(self.best_fit)
+        
+        if restart and not self.converged():
+            print("Starting again with solution {} and fitness {}.".format(self.best_solution, self.best_fit))
+            self.restart_count += 1
+            self.temperature = self.initial_temperature*self.restart_count
+            self.iteration = 1
+            self.simulated_annealing(restart = True, current_solution = self.best_solution, current_fit = self.best_fit)
+
+    def converged(self):
+        if len(self.result) >= self.convergence:
+            return len(set(self.result[-self.convergence:])) == 1
+        return False
+
     def distance(self, n1, n2):
         '''
         Calculates the distances between nodes.
@@ -151,9 +176,9 @@ def simulated_annealing_tests():
     all_coordinates = ut.get_all_files()
     for city, coordinates in all_coordinates.items():
         sa = SimulatedAnnealing(city, coordinates, alpha = 0.999)
-        sa.simulated_annealing()
+        sa.simulated_annealing(restart = True)
         print("Results for {}:".format(city))
-        ut.plotTSP(sa.best_solution, coordinates, title = "Simulated Annealing: "+city, save_path = "Plots/SA/"+city+".png", verbose = True)
+        ut.plotTSP(sa.best_solution, coordinates, title = "Simulated Annealing: "+city, save_path = "Plots/SA/"+city+".png", verbose = True, show_plots = False)
     pass
 
 if __name__ == "__main__":
