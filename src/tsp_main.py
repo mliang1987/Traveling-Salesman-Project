@@ -22,6 +22,7 @@ from branch_and_bound import BranchAndBoundSolver
 
 
 def main():
+  time_init = time.time()
   # Parse command line arguments.
   cli_args = dict((sys.argv[1 + i], sys.argv[2 + i]) for i in range(0, len(sys.argv[1:]), 2))
   inst_arg = cli_args.get("-inst", None)
@@ -35,14 +36,14 @@ def main():
 
   # Solve the problem instance.
   print("[%s] Started execution.\n\tinst = %s\n\talg = %s\n\ttime = %s\n\tseed = %s" %
-      (time.time(), inst_arg, alg_arg, time_arg, seed_arg))
+      (time_init, inst_arg, alg_arg, time_arg, seed_arg))
   if (alg_arg == "BnB"):
     solver = BranchAndBoundSolver(inst_arg, time_arg)
   elif (alg_arg == "Approx"):
     # TODO
     raise NotImplementedError
   elif (alg_arg == "LS1"):
-    # TODO
+    # Simulated Annealing
     raise NotImplementedError
   elif (alg_arg == "LS2"):
     # TODO

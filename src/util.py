@@ -7,6 +7,8 @@ import numpy as np
 import glob
 import os
 import re
+import pandas as pd
+from scipy.spatial import distance_matrix
 
 def read_tsp_file(file_name):
     '''
@@ -91,6 +93,10 @@ def plotTSP(tour, coords, title = None, subtitled = True, save_path = None, show
     if show_plots:
         plt.show()
 
+def calculate_distance_matrix(coordinates):
+        df = pd.DataFrame.from_dict(coordinates, orient = 'index', columns = ['x','y'])
+        df_distance_matrix = pd.DataFrame(distance_matrix(df.values, df.values), index = df.index, columns = df.index)
+        return df_distance_matrix
 
 def get_all_files(path = 'Data/'):
     '''
