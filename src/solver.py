@@ -8,6 +8,7 @@
 
 import decimal
 import math
+import re
 import time
 
 
@@ -25,8 +26,11 @@ class Solver:
       # List of tuples representing cities, where the 1st element is the city's
       # id, 2nd is the city's x coordinate, and 3rd is the city's y coordinate.
       cities = []
-      # Iterate over the lines, excluding the header.
-      for input_line in input_file.readlines()[5:-1]:
+      # Iterate over the lines, excluding the header and EOF.
+      for input_line in input_file.readlines():
+        if re.match(r'^[a-zA-Z]{1}.+', input_line):
+          # Skip header lines and EOF.
+          continue
         values_str = input_line.split()
         cities.append(
             (int(values_str[0]), float(values_str[1]), float(values_str[2]))
