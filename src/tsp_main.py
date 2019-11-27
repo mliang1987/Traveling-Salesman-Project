@@ -41,13 +41,13 @@ def main():
   if (alg_arg == "BnB"):
     solver = BranchAndBoundSolver(inst_arg, int(time_arg))
   elif (alg_arg == "Approx"):
-    # TODO
+    # MST
     raise NotImplementedError
   elif (alg_arg == "LS1"):
     # Simulated Annealing
     raise NotImplementedError
   elif (alg_arg == "LS2"):
-    # TODO
+    # Genetic
     raise NotImplementedError
   cost, tour, trace = solver.solve()
   inst = os.path.basename(inst_arg).split('.')[0]
