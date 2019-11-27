@@ -1,4 +1,4 @@
- ####################################################################################################
+####################################################################################################
 # CSE 6140 - Fall 2019
 #   Rodrigo Alves Lima
 #   Shichao Liang
@@ -129,10 +129,10 @@ class BranchAndBoundSolver(Solver):
           continue
         if expanded_config.is_solution():
           # Update the global upper bound, if needed.
-          upper_bound = min(upper_bound, expanded_config.get_cycle_cost()) \
-              if upper_bound is not None else expanded_config.get_cycle_cost()
-          print("[%s] Found a solution.\n\tupper bound = %s" % (time.time(), upper_bound))
+          this_solution = expanded_config.get_cycle_cost()
+          if upper_bound is None or this_solution < upper_bound:
+            upper_bound = this_solution
+            print("[%s] Found a better solution: %s" % (time.time(), upper_bound))
         elif upper_bound is None or expanded_config.get_lower_bound() < upper_bound:
           # Add to the frontier set.
           heappush(frontier, expanded_config)
-    print("[%s] Done.\n\tcost = %s" % (time.time(), upper_bound))
