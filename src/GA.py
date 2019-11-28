@@ -4,16 +4,18 @@ import simulated_annealing as sa
 import random
 import pandas as pd
 import time
+import math
 
 
 class GeneticAlgorithm():
 
-	def __init__(self, name, coordinates, pop_size = 400, max_iteration_time = 600, num_crossovers = 180, num_mutation = 400):
+	def __init__(self, name,  coordinates, randomSeed = 0, pop_size = 300, max_iteration_time = 600, num_crossovers = 140, num_mutation = 250):
 		self.coordinates = coordinates
 		self.name = name
 		self.N = len(coordinates)
 		self.nodes = list(self.coordinates.keys())
-
+		self.randomSeed = randomSeed
+		random.seed(randomSeed)
 		self.max_iteration_time = max_iteration_time
 		self.pop_size = pop_size
 		self.num_crossovers = num_crossovers
@@ -24,6 +26,20 @@ class GeneticAlgorithm():
 		self.ideal = 1.0/(df.loc[self.name]['Value'])
 
 
+	def distance(self, n1, n2):
+		'''
+		Calculates the distances between nodes.
+
+		Parameters:
+		n1: Node 1 ID
+		n2: Node 2 ID
+
+		Returns: floating point Euclidean distance between two nodes
+		'''
+		x1,y1 = self.coordinates[n1]
+		x2,y2 = self.coordinates[n2]
+		return math.sqrt((x1-x2)**2 +(y1-y2)**2)
+		
 	def random_tour(self):
 		'''
 		Random tour generated.  Identifies all nodes, then shuffles order.
@@ -36,6 +52,28 @@ class GeneticAlgorithm():
 		random.shuffle(path)
 		#fitness = ut.get_tour_distance(path, self.coordinates)
 		return path#, fitness
+
+
+	def nearest_neighbors_tour(self, start_city):
+		'''
+		Tour generated with greedy heuristic: Picks a random starting node, then appends
+		next nearest neighbor.
+
+		Returns:
+		solution: tour path
+		fitness: tour length,
+		'''
+		solution = []
+		unassigned_nodes = set(self.nodes)
+		node = start_city
+		solution.append(node)
+		unassigned_nodes.remove(node)
+		while unassigned_nodes:
+			next = min(unassigned_nodes, key=lambda x: self.distance(node, x))
+			unassigned_nodes.remove(next)
+			solution.append(next)
+			node = next
+		return solution
 
 	def terminate(self, count):
 		if count>= self.max_iteration_time:
@@ -165,18 +203,30 @@ class GeneticAlgorithm():
 		pop_size = self.pop_size
 		solution = []
 		population = [[0 for _ in range(self.N)] for _ in range(pop_size)]
-		for i in range(pop_size):
-			population[i] = self.random_tour()
+		for i in range(self.N):
+			population[i] = self.nearest_neighbors_tour(self.nodes[i])
+
+		for i in range(pop_size-self.N):
+			population[i+self.N] = self.random_tour()
 
 		start_time = time.time()
 		#count =0
-
+		direc = self.name+"_LS2_" + str(self.max_iteration_time)+ "_" + str(self.randomSeed) + ".trace"
+		f = open(direc, "w")
+		prevBestFitness = float("-inf")
 		while(self.terminate(time.time()-start_time)!= True):
 			newPopulation = []
-			_, bestFitness = self.getBestIndividual(population)
+			bestI, bestFitness = self.getBestIndividual(population)
+
+			if bestFitness> prevBestFitness:
+				f.write("%s, " %(round((time.time()-start_time),2)))
+				f.write("%s\n"%ut.get_tour_distance(bestI, self.coordinates) )
+
+			prevBestFitness = bestFitness
+
 			if bestFitness == self.ideal:
 				break
-			#print('Iteration ', count, ' Best Fitness = ', bestFitness )
+
 			mutation_pool = self.selectIndividualsForMutation(population)
 			for i in range(len(mutation_pool)):
 				parent = mutation_pool[i]
@@ -191,12 +241,11 @@ class GeneticAlgorithm():
 				newPopulation.append(offspring1)
 				newPopulation.append(offspring2)
 
-			#print(population)
-			#print(newPopulation)
+
 			population = self.globalCompetition(population, newPopulation)
 
-			#count+=1
 
+		f.close()
 		return self.getBestIndividual(population)
 
 def genetic_tests():
@@ -204,9 +253,19 @@ def genetic_tests():
 	Tests out simulated annealing algorithm using default parameters.
 	'''
 	all_coordinates = ut.get_all_files()
+	cutoff = '600'
+	randomSeed = '0'
 	for city, coordinates in all_coordinates.items():
 		ga = GeneticAlgorithm(city, coordinates)
+
 		result,_ = ga.GeneticAlgo()
+		direc = city+"_LS2_" + cutoff+ "_" + randomSeed + ".sol"
+		f = open(direc, "w")
+		f.write("%s\n" %ut.get_tour_distance(result, coordinates))
+		for item in result:
+			f.write("%s," %(item-1))
+		f.close()
+
 		print("Results for {}:".format(city))
 		ut.plotTSP(result, coordinates, title = "Genetic Algorithm: "+city, save_path = "C:/Users/LBJ/Desktop/CANVAS/Algo/CSE-6140---Project-master/Data/Plots/GA3/"+city+".png", verbose = True)
 	pass
