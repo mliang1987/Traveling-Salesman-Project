@@ -193,7 +193,10 @@ class BranchAndBoundConfiguration:
 
     other -- [Configuration] A configuration to be compared against.
     """
-    return self._lower_bound < other._lower_bound
+    # Prioritize depth (as seen in https://gatech.instructure.com/courses/60478/external_tools/81).
+    return (self._lower_bound / len(self._path)) < (other._lower_bound / len(other._path))
+    # Prioritize breadth.
+    # return self._lower_bound < other._lower_bound
 
 
 class BranchAndBoundSolver(Solver):
