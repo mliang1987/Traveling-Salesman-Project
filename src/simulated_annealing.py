@@ -58,7 +58,7 @@ class SimulatedAnnealing(object):
         self.trace = []
         self.result = []
         #self.convergence = min(10, int(self.N/2))
-        self.convergence = min(15, int(self.N/2))
+        self.convergence = self.N
         self.restart_count = 0
         self.tour_flag = tour_flag
 
@@ -168,7 +168,7 @@ class SimulatedAnnealing(object):
             return
         
         # Restart with current solution?
-        if restart and not self.converged():
+        if restart:
             self.restart_count += 1
             self.temperature = self.initial_temperature* (10**self.restart_count)
             print("\tIteration: {}, Current: {}, Best: {}".format(self.restart_count, self.current_fit, self.best_fit))
@@ -190,7 +190,7 @@ class SimulatedAnnealing(object):
 
         Returns: floating point Euclidean distance between two nodes
         '''
-        return self.distance_matrix.iloc[n1-1][n2]
+        return self.distance_matrix[n1-1,n2-1]
         #x1,y1 = self.coordinates[n1]
         #x2,y2 = self.coordinates[n2]
         #return math.sqrt((x1-x2)**2 +(y1-y2)**2)
@@ -232,19 +232,19 @@ if __name__ == "__main__":
     fits = []
     for i in range(5):
         start_time = time.time()
-        bf = simulated_annealing_single("Data\\Atlanta.tsp", int(time.time()), start_time, 600)
-        #bf = simulated_annealing_single("Data\\Berlin.tsp", int(time.time()), start_time, 600)
-        #simulated_annealing_single("Data\\Boston.tsp", int(time.time()), time.time(), 600)
-        #simulated_annealing_single("Data\\Champaign.tsp", int(time.time()), time.time(), 600)
-        #simulated_annealing_single("Data\\Cincinnati.tsp", int(time.time()), time.time(), 600)
-        #simulated_annealing_single("Data\\Denver.tsp", int(time.time()), time.time(), 600)
-        #simulated_annealing_single("Data\\NYC.tsp", int(time.time()), time.time(), 600)
-        #simulated_annealing_single("Data\\Philadelphia.tsp", int(time.time()), time.time(), 600)
-        #simulated_annealing_single("Data\\Roanoke.tsp", int(time.time()), time.time(), 600)
-        #simulated_annealing_single("Data\\SanFrancisco.tsp", int(time.time()), time.time(), 600)
-        #simulated_annealing_single("Data\\Toronto.tsp", int(time.time()), time.time(), 600)
-        #simulated_annealing_single("Data\\UKansasState.tsp", int(time.time()), time.time(), 600)
-        #simulated_annealing_single("Data\\UMissouri.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\Atlanta.tsp", int(time.time()), start_time, 600)
+        bf = simulated_annealing_single("Data\\Berlin.tsp", int(time.time()), start_time, 600)
+        #bf = simulated_annealing_single("Data\\Boston.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\Champaign.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\Cincinnati.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\Denver.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\NYC.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\Philadelphia.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\Roanoke.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\SanFrancisco.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\Toronto.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\UKansasState.tsp", int(time.time()), time.time(), 600)
+        #bf = simulated_annealing_single("Data\\UMissouri.tsp", int(time.time()), time.time(), 600)
         fits.append(bf)
         times.append(time.time()-start_time)
     print(statistics.mean(times))

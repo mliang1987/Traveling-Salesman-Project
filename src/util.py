@@ -8,6 +8,7 @@ import glob
 import os
 import re
 import pandas as pd
+from decimal import Decimal, ROUND_HALF_UP
 
 def read_tsp_file(file_name):
     '''
@@ -22,7 +23,7 @@ def read_tsp_file(file_name):
     contents = list(filter(None, [re.findall(r'[\d-]+\s[\d.-]+\s[\d.-]+',line) for line in f]))
     f.close()
     contents = [(line[0].rstrip()).split(" ") for line in contents]
-    coordinates = {int(coord[0]):(float(coord[1]),float(coord[2])) for coord in contents}
+    coordinates = {int(coord[0])-1:(float(coord[1]),float(coord[2])) for coord in contents}
     return coordinates
 
 def get_tour_distance(tour, coords):
@@ -93,8 +94,16 @@ def plotTSP(tour, coords, title = None, subtitled = True, save_path = None, show
         plt.show()
 
 def calculate_distance_matrix(coordinates):
+    '''
+    Calculates distance matrix using provided coordinates.
+
+    Parameters:
+    coordinates: Dictionary of coordinates mapping n locations to (x,y) coordinates
+
+    Returns: n x n (int) matrix of distances.
+    '''
     pts = np.asarray(list(coordinates.values()))
-    return np.sqrt(np.sum((pts[None, :] - pts[:, None])**2, -1))
+    return np.around(np.sqrt(np.sum((pts[None, :] - pts[:, None])**2, -1))).astype(int)
 
 def get_all_files(path = 'Data/'):
     '''
