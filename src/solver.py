@@ -41,6 +41,7 @@ class Solver:
     # Set attributes.
     self._cutoff_time = cutoff_time
     self._N = len(cities)
+    self._vertex_to_city = dict([(i, cities[i][0]) for i in range(self._N)])
 
     # Build the graph by calculating Euclidean distances between cities (rounded to the nearest
     # integer).

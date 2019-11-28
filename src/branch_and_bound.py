@@ -177,4 +177,4 @@ class BranchAndBoundSolver(Solver):
         elif expanded_config.get_lower_bound() < upper_bound:
           # Add to the frontier set.
           heappush(frontier, expanded_config)
-    return (upper_bound, tour, trace)
+    return (upper_bound, [self._vertex_to_city[v] for v in tour], trace)
