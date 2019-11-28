@@ -6,14 +6,68 @@
 #   Kevin Tynes
 ####################################################################################################
 
-from heapq import heappush, heappop
-import time
 
-from solver import Solver
+"""
+This file has the implementation of the branch and bound algorithm.
+"""
+
+
+import decimal
+from heapq import heappush, heappop
+import math
+import numpy as np
+import re
+import time
 
 
 # Configuration
 LOWER_BOUND_METHOD = "MST"   # "SHORTEST_EDGES" or "MST"
+
+
+class Solver:
+  """Define a Solver interface and implement utilities common to all solvers."""
+
+  def __init__(self, filename, cutoff_time):
+    """Initialize a Solver.
+
+    filename -- [string] Filepath of a single input instance.
+    cutoff_time -- [int] Cut-off time.
+    """
+    # Parse the input file.
+    with open(filename) as input_file:
+      # List of tuples representing cities, where the 1st element is the city's
+      # id, 2nd is the city's x coordinate, and 3rd is the city's y coordinate.
+      cities = []
+      # Iterate over the lines, excluding the header, EOF, and empty lines.
+      for input_line in input_file.readlines():
+        input_line = input_line.strip()
+        if re.match(r'^[a-zA-Z]{1}.+', input_line) or not input_line:
+          # Skip header lines and EOF.
+          continue
+        values_str = input_line.split()
+        cities.append(
+            (int(values_str[0]), float(values_str[1]), float(values_str[2]))
+        )
+
+    # Set attributes.
+    self._cutoff_time = cutoff_time
+    self._N = len(cities)
+    self._vertex_to_city = dict([(i, cities[i][0]) for i in range(self._N)])
+
+    # Build the graph by calculating Euclidean distances between cities (rounded to the nearest
+    # integer).
+    self._G = np.array([[None for j in range(self._N)] for i in range(self._N)])
+    for city_a in range(self._N):
+      self._G[city_a][city_a] = 0
+      for city_b in range(city_a + 1, self._N):
+        self._G[city_a][city_b] = self._G[city_b][city_a] = int(decimal.Decimal(math.sqrt((
+            cities[city_a][1] - cities[city_b][1]) ** 2 +
+            (cities[city_a][2] - cities[city_b][2]) ** 2
+        )).quantize(decimal.Decimal(1), rounding=decimal.ROUND_HALF_UP))
+    print("[%s] Built the graph.\n\tdimension = %s" % (time.time(), self._N))
+
+  def solve(self):
+    raise NotImplementedError
 
 
 class BranchAndBoundConfiguration:
@@ -123,17 +177,24 @@ class BranchAndBoundConfiguration:
 
 
 class BranchAndBoundSolver(Solver):
-  """Implementation of the branch and bound algorithm using the MST-based lower bound function."""
+  """Implementation of the branch and bound algorithm."""
 
   def solve(self):
     """Return an exact solution to the TSP problem.
 
     The branch and bound algorithm maintains a set `frontier' of partial solutions to be expanded,
     where each partial solution is a path in the graph. A lower bound `l(p)' is calculated for each
-    partial solution `p': no solution derived from `p' can be better than `l(p)'. A MST-based
-    approach is used to calculate this lower bound `l(p)' of a path `p': the sum of the cost of `p'
+    partial solution `p': no solution derived from `p' can be better than `l(p)'. Two lower bound
+    functions were implemented: MST-based and 2 shortest edges. To select the lower bound function,
+    define the global variable `LOWER_BOUND_METHOD' appropriately.
+
+    The MST-based lower bound function calculates `l(p)' of a path `p': the sum of the cost of `p'
     itself, the cost of the minimum spanning tree covering the vertices not in `p', and the cost of
     connecting `p' to this minimum spanning tree.
+
+    The 2 shortest edges lower bound function calculates `l(p)' of a path `p': the sum of the cost
+    of `p' itself and the mean of the 2 shortest edges of each vertex not in `p' to another vertex
+    not in `p' or to the ends of `p'.
 
     At each iteration, the branch and bound algorithm selects the most promising path from the
     `frontier' (i.e. the one with the lowest lower bound value) and expand it by appending an
