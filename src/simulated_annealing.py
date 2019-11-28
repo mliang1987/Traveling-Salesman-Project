@@ -171,7 +171,7 @@ class SimulatedAnnealing(object):
         if restart and not self.converged():
             self.restart_count += 1
             self.temperature = self.initial_temperature* (10**self.restart_count)
-            #print("\tIteration: {}, Current: {}, Best: {}".format(self.restart_count, self.current_fit, self.best_fit))
+            print("\tIteration: {}, Current: {}, Best: {}".format(self.restart_count, self.current_fit, self.best_fit))
             self.iteration = 1
             self.simulated_annealing(restart = True, current_solution = self.best_solution, current_fit = self.best_fit)
 
@@ -212,14 +212,14 @@ def simulated_annealing_single(file_path, random_seed, time_start, max_time):
     random.seed(random_seed)
     
     coordinates = ut.read_tsp_file(file_path)
-    sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-9, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time)
+    sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-8, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time)
     sa.simulated_annealing(restart = True)
     best_fit = sa.best_fit
     best_solution = sa.best_solution
     while max_time-(time.time()-time_start)> sa.time_delta and sa.best_fit not in sa.solutions:
-        sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-9, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 1)
-        sa.best_fit = best_fit
-        sa.best_solution = best_solution
+        sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-8, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 1)
+        #sa.best_fit = best_fit
+        #sa.best_solution = best_solution
         sa.simulated_annealing(restart = True)
         if(sa.best_fit < best_fit):
             best_fit = sa.best_fit
