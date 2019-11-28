@@ -9,6 +9,26 @@
 
 """
 This file has the implementation of the branch and bound algorithm.
+
+The branch and bound algorithm maintains a set `frontier' of partial solutions to be expanded,
+where each partial solution is a path in the graph. A lower bound `l(p)' is calculated for each
+partial solution `p': no solution derived from `p' can be better than `l(p)'. Two lower bound
+functions were implemented: MST-based and 2 shortest edges. To select the lower bound function,
+define the global variable `LOWER_BOUND_METHOD' appropriately.
+
+The MST-based lower bound function calculates `l(p)' of a path `p': the sum of the cost of `p'
+itself, the cost of the minimum spanning tree covering the vertices not in `p', and the cost of
+connecting `p' to this minimum spanning tree.
+
+The 2 shortest edges lower bound function calculates `l(p)' of a path `p': the sum of the cost
+of `p' itself and the mean of the 2 shortest edges of each vertex not in `p' to another vertex
+not in `p' or to the ends of `p'.
+
+At each iteration, the branch and bound algorithm selects the most promising path from the
+`frontier' (i.e. the one with the lowest lower bound value) and expand it by appending an
+unvisited vertex to the end. The new partial solution `q' is only added to `frontier' if `l(q)'
+is less than a global upper bound value with the best solution found so far (i.e. a branch can
+be pruned if no solution derived from it can be better than a solution already found).
 """
 
 
@@ -180,28 +200,7 @@ class BranchAndBoundSolver(Solver):
   """Implementation of the branch and bound algorithm."""
 
   def solve(self):
-    """Return an exact solution to the TSP problem.
-
-    The branch and bound algorithm maintains a set `frontier' of partial solutions to be expanded,
-    where each partial solution is a path in the graph. A lower bound `l(p)' is calculated for each
-    partial solution `p': no solution derived from `p' can be better than `l(p)'. Two lower bound
-    functions were implemented: MST-based and 2 shortest edges. To select the lower bound function,
-    define the global variable `LOWER_BOUND_METHOD' appropriately.
-
-    The MST-based lower bound function calculates `l(p)' of a path `p': the sum of the cost of `p'
-    itself, the cost of the minimum spanning tree covering the vertices not in `p', and the cost of
-    connecting `p' to this minimum spanning tree.
-
-    The 2 shortest edges lower bound function calculates `l(p)' of a path `p': the sum of the cost
-    of `p' itself and the mean of the 2 shortest edges of each vertex not in `p' to another vertex
-    not in `p' or to the ends of `p'.
-
-    At each iteration, the branch and bound algorithm selects the most promising path from the
-    `frontier' (i.e. the one with the lowest lower bound value) and expand it by appending an
-    unvisited vertex to the end. The new partial solution `q' is only added to `frontier' if `l(q)'
-    is less than a global upper bound value with the best solution found so far (i.e. a branch can
-    be pruned if no solution derived from it can be better than a solution already found).
-    """
+    """Return an exact solution to the TSP problem."""
     # Use a trivial tour (1-2-3-...-N-1) to set the global upper bound.
     tour = list(range(self._N))
     upper_bound = sum([self._G[i][(i + 1) % self._N] for i in range(self._N)])
