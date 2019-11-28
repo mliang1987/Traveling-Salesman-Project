@@ -8,6 +8,8 @@
 
 import decimal
 import math
+import numpy as np
+import re
 import time
 
 
@@ -25,8 +27,12 @@ class Solver:
       # List of tuples representing cities, where the 1st element is the city's
       # id, 2nd is the city's x coordinate, and 3rd is the city's y coordinate.
       cities = []
-      # Iterate over the lines, excluding the header.
-      for input_line in input_file.readlines()[5:-1]:
+      # Iterate over the lines, excluding the header, EOF, and empty lines.
+      for input_line in input_file.readlines():
+        input_line = input_line.strip()
+        if re.match(r'^[a-zA-Z]{1}.+', input_line) or not input_line:
+          # Skip header lines and EOF.
+          continue
         values_str = input_line.split()
         cities.append(
             (int(values_str[0]), float(values_str[1]), float(values_str[2]))
@@ -38,7 +44,7 @@ class Solver:
 
     # Build the graph by calculating Euclidean distances between cities (rounded to the nearest
     # integer).
-    self._G = [[None for j in range(self._N)] for i in range(self._N)]
+    self._G = np.array([[None for j in range(self._N)] for i in range(self._N)])
     for city_a in range(self._N):
       self._G[city_a][city_a] = 0
       for city_b in range(city_a + 1, self._N):

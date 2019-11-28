@@ -232,8 +232,8 @@ if __name__ == "__main__":
     fits = []
     for i in range(5):
         start_time = time.time()
-        #bf = simulated_annealing_single("Data\\Atlanta.tsp", int(time.time()), start_time, 600)
-        bf = simulated_annealing_single("Data\\Berlin.tsp", int(time.time()), start_time, 600)
+        bf = simulated_annealing_single("Data\\Atlanta.tsp", int(time.time()), start_time, 600)
+        #bf = simulated_annealing_single("Data\\Berlin.tsp", int(time.time()), start_time, 600)
         #simulated_annealing_single("Data\\Boston.tsp", int(time.time()), time.time(), 600)
         #simulated_annealing_single("Data\\Champaign.tsp", int(time.time()), time.time(), 600)
         #simulated_annealing_single("Data\\Cincinnati.tsp", int(time.time()), time.time(), 600)

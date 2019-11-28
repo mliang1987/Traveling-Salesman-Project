@@ -14,6 +14,7 @@ Command-line arguments:
   -seed [int]: Seed for random generator (optional).
 """
 
+import os
 import sys
 import time
 
@@ -38,17 +39,22 @@ def main():
   print("[%s] Started execution.\n\tinst = %s\n\talg = %s\n\ttime = %s\n\tseed = %s" %
       (time_init, inst_arg, alg_arg, time_arg, seed_arg))
   if (alg_arg == "BnB"):
-    solver = BranchAndBoundSolver(inst_arg, time_arg)
+    solver = BranchAndBoundSolver(inst_arg, int(time_arg))
   elif (alg_arg == "Approx"):
-    # TODO
+    # MST
     raise NotImplementedError
   elif (alg_arg == "LS1"):
     # Simulated Annealing
     raise NotImplementedError
   elif (alg_arg == "LS2"):
-    # TODO
+    # Genetic
     raise NotImplementedError
-  solver.solve()
+  cost, tour, trace = solver.solve()
+  inst = os.path.basename(inst_arg).split('.')[0]
+  with open("%s_%s_%s.trace" % (inst, alg_arg, time_arg) if seed_arg is None else \
+      "%s_%s_%s_%s.trace" % (inst, alg_arg, time_arg, seed_arg), 'w') as trace_file:
+    trace_file.write(
+        "\n".join(["%.2f, %s" % (trace_record[0], trace_record[1]) for trace_record in trace]))
 
 
 if __name__ == "__main__":
