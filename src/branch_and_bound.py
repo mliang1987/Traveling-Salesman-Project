@@ -51,13 +51,13 @@ class Solver:
     """Initialize a Solver.
 
     filename -- [string] Filepath of a single input instance.
-    cutoff_time -- [int] Cut-off time.
+    cutoff_time -- [int] Cut-off time in seconds.
     """
     # Parse the input file.
     with open(filename) as input_file:
-      # List of tuples representing cities, where the 1st element is the city's
-      # id, 2nd is the city's x coordinate, and 3rd is the city's y coordinate.
-      cities = []
+      # List of tuples representing vertices, where the 1st element is its id, 2nd is its x
+      # coordinate, and 3rd is its y coordinate.
+      vertices = []
       # Iterate over the lines, excluding the header, EOF, and empty lines.
       for input_line in input_file.readlines():
         input_line = input_line.strip()
@@ -65,24 +65,23 @@ class Solver:
           # Skip header lines and EOF.
           continue
         values_str = input_line.split()
-        cities.append(
+        vertices.append(
             (int(values_str[0]), float(values_str[1]), float(values_str[2]))
         )
 
     # Set attributes.
     self._cutoff_time = cutoff_time
-    self._N = len(cities)
-    self._vertex_to_city = dict([(i, cities[i][0]) for i in range(self._N)])
+    self._N = len(vertices)
+    self._index_to_id = dict([(i, vertices[i][0]) for i in range(self._N)])
 
-    # Build the graph by calculating Euclidean distances between cities (rounded to the nearest
+    # Build the graph by calculating Euclidean distances between vertices (rounded to the nearest
     # integer).
     self._G = np.array([[None for j in range(self._N)] for i in range(self._N)])
-    for city_a in range(self._N):
-      self._G[city_a][city_a] = 0
-      for city_b in range(city_a + 1, self._N):
-        self._G[city_a][city_b] = self._G[city_b][city_a] = int(decimal.Decimal(math.sqrt((
-            cities[city_a][1] - cities[city_b][1]) ** 2 +
-            (cities[city_a][2] - cities[city_b][2]) ** 2
+    for u in range(self._N):
+      self._G[u][u] = 0
+      for v in range(u + 1, self._N):
+        self._G[u][v] = self._G[v][u] = int(decimal.Decimal(math.sqrt(
+            (vertices[u][1] - vertices[v][1]) ** 2 + (vertices[u][2] - vertices[v][2]) ** 2
         )).quantize(decimal.Decimal(1), rounding=decimal.ROUND_HALF_UP))
     print("[%s] Built the graph.\n\tdimension = %s" % (time.time(), self._N))
 
@@ -240,4 +239,4 @@ class BranchAndBoundSolver(Solver):
         elif expanded_config.get_lower_bound() < upper_bound:
           # Add to the frontier set.
           heappush(frontier, expanded_config)
-    return (upper_bound, [self._vertex_to_city[v] for v in tour], trace)
+    return (upper_bound, [self._index_to_id[v] for v in tour], trace)
