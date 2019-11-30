@@ -55,10 +55,12 @@ def main():
       "%s_%s_%s_%s.sol" % (inst, alg_arg, time_arg, seed_arg), 'w') as solution_file:
     solution_file.write("%s\n" % (cost))
     solution_file.write(",".join([str(city - 1) for city in tour]))
+    solution_file.write("\n")
   with open("%s_%s_%s.trace" % (inst, alg_arg, time_arg) if seed_arg is None else \
       "%s_%s_%s_%s.trace" % (inst, alg_arg, time_arg, seed_arg), 'w') as trace_file:
     trace_file.write(
         "\n".join(["%.2f, %s" % (trace_record[0], trace_record[1]) for trace_record in trace]))
+    trace_file.write("\n")
 
 
 if __name__ == "__main__":
