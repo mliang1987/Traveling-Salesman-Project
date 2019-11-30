@@ -8,27 +8,26 @@
 
 
 """
-This file has the implementation of the branch and bound algorithm.
+This file has the implementation of the Branch-and-Bound algorithm.
 
-The branch and bound algorithm maintains a set `frontier' of partial solutions to be expanded,
-where each partial solution is a path in the graph. A lower bound `l(p)' is calculated for each
-partial solution `p': no solution derived from `p' can be better than `l(p)'. Two lower bound
-functions were implemented: MST-based and 2 shortest edges. To select the lower bound function,
-define the global variable `LOWER_BOUND_METHOD' appropriately.
+The Branch-and-Bound algorithm maintains a set of partial solutions called `frontier', where a
+partial solution is simply a path in the graph. Initially, this `frontier' set has a single path
+containing only vertex `1'. A lower bound `lb(p)' is calculated for each partial solution `p' in the
+`frontier' set: no solution derived from `p' can cost less than `lb(p)'. Specifically, we have used
+the MST-based approach to calculate the lower bounds in our experiments: the lower bound of `p' is
+the sum of the cost of the path `p' itself, the cost of the minimum spanning tree covering the
+vertices not in `p', and the cost of connecting `p' to this minimum spanning tree. Furthermore, a
+global `upper_bound' is maintained with the best solution (i.e. the route with the lowest cost)
+found so far. Initially, this global `upper_bound' is set with the cost of a trivial route visiting
+vertices in the following order: 1-2-3-...-N-1.
 
-The MST-based lower bound function calculates `l(p)' of a path `p': the sum of the cost of `p'
-itself, the cost of the minimum spanning tree covering the vertices not in `p', and the cost of
-connecting `p' to this minimum spanning tree.
-
-The 2 shortest edges lower bound function calculates `l(p)' of a path `p': the sum of the cost
-of `p' itself and the mean of the 2 shortest edges of each vertex not in `p' to another vertex
-not in `p' or to the ends of `p'.
-
-At each iteration, the branch and bound algorithm selects the most promising path from the
-`frontier' (i.e. the one with the lowest lower bound value) and expand it by appending an
-unvisited vertex to the end. The new partial solution `q' is only added to `frontier' if `l(q)'
-is less than a global upper bound value with the best solution found so far (i.e. a branch can
-be pruned if no solution derived from it can be better than a solution already found).
+Until the `frontier' set is empty, the most promising partial solution `p'' in the `frontier' set is
+selected and removed from the set. Typically, this is the one with the lowest lower bound but we
+also use the one with the lowest ratio `lb(p') / len(p')', where `len(p')' is the length of path
+`p'' itself. The most promising partial solution `p'' is then expanded, with an unvisited vertex
+appended to its end, generating a new candidate path `c' that is only added to the `frontier' set if
+`lp(c) < upper_bound'. This is exactly the pruning phase of the algorithm: a branch is not explored
+if no possibly derived solutions can cost less than what was already found.
 """
 
 
@@ -41,7 +40,7 @@ import time
 
 
 # Configuration
-LOWER_BOUND_METHOD = "MST"   # "SHORTEST_EDGES" or "MST"
+LOWER_BOUND_METHOD = "MST"
 
 
 class Solver:
@@ -83,7 +82,6 @@ class Solver:
         self._G[u][v] = self._G[v][u] = int(decimal.Decimal(math.sqrt(
             (vertices[u][1] - vertices[v][1]) ** 2 + (vertices[u][2] - vertices[v][2]) ** 2
         )).quantize(decimal.Decimal(1), rounding=decimal.ROUND_HALF_UP))
-    print("[%s] Built the graph.\n\tdimension = %s" % (time.time(), self._N))
 
   def solve(self):
     raise NotImplementedError
@@ -95,10 +93,10 @@ class BranchAndBoundConfiguration:
   def __init__(self, G, N, path, lower_bound_method):
     """Initialize a configuration: a path in the graph.
 
-    G -- [list of list of integers] A graph represented as an adjacency matrix.
+    G -- [2-dim array of integers] A graph represented as an adjacency matrix.
     N -- [integer] Number of vertices in the graph.
     path -- [list of integers] A path represented as a sequence of vertices.
-    lower_bound_method -- [string] "MST" or "SHORTEST_EDGES".
+    lower_bound_method -- [string] "MST".
     """
     # Set attributes.
     self._G = G
@@ -138,20 +136,6 @@ class BranchAndBoundConfiguration:
       self._lower_bound = self.get_path_cost() + mst_cost + \
           min([G[path[0]][v] for v in range(N) if v not in path]) if len(path) > 0 else 0 + \
           min([G[path[-1]][v] for v in range(N) if v not in path]) if len(path) > 1 else 0
-    elif lower_bound_method == "SHORTEST_EDGES":
-      # Calculate a lower bound of any solution derived from this configuration:
-      #   cost of the path +
-      #   mean of the 2 shortest edges that can be in a tour for every vertex that is not in the
-      #   path
-      self._lower_bound = self.get_path_cost()
-      for u in range(N):
-        if u in path:
-          continue
-        edge_weights = [
-            G[u][v] for v in range(N) if u != v and (v not in path or v in (path[0], path[-1]))
-        ]
-        edge_weights.sort()
-        self._lower_bound += (edge_weights[0] + edge_weights[1]) / 2
     else:
       raise NotImplementedError
 
@@ -214,7 +198,7 @@ class BranchAndBoundSolver(Solver):
     # Set the start time.
     start_time = time.time()
 
-    # Branch and bound until the frontier set is empty or the time has not expired.
+    # Branch and bound until the frontier set is empty or the time has expired.
     while frontier and (time.time() - start_time) < self._cutoff_time:
       # Fetch the most promising configuration.
       config = heappop(frontier)
@@ -235,7 +219,6 @@ class BranchAndBoundSolver(Solver):
             # Update the best solution.
             upper_bound = this_solution
             tour = list(expanded_config.get_path())
-            print("[%s] Found a better solution: %s" % (time.time(), upper_bound))
         elif expanded_config.get_lower_bound() < upper_bound:
           # Add to the frontier set.
           heappush(frontier, expanded_config)
