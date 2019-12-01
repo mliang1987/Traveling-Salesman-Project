@@ -10,18 +10,37 @@ import math
 class GeneticAlgorithm():
 
 	def __init__(self, name,  coordinates, randomSeed = 0, pop_size = 300, max_iteration_time = 600, num_crossovers = 140, num_mutation = 250):
+        '''
+        Constructor for Genetic Algorithms.
+
+        Parameters:
+        name: String for the name of the file
+        coordinates: dictionary of node IDs to coordinates.
+
+        Optional:
+        randomSeed: random seed for Python random number generator
+        pop_size: population size of the sample
+        max_iteration_time: maximum time in seconds before we stop 
+        num_crossovers: number of crossovers from one population to the next
+        num_mutation: number of mutations one individuals on each population
+        '''
+        # Problem parameters
 		self.coordinates = coordinates
 		self.name = name
 		self.N = len(coordinates)
 		self.nodes = list(self.coordinates.keys())
+		self.max_iteration_time = max_iteration_time
+
+		# Seed random number generator
 		self.randomSeed = randomSeed
 		random.seed(randomSeed)
-		self.max_iteration_time = max_iteration_time
+
+		#GA parameters
 		self.pop_size = pop_size
 		self.num_crossovers = num_crossovers
 		self.num_mutation = num_mutation
 
-		df = pd.read_csv('C:/Users/LBJ/Desktop/CANVAS/Algo/CSE-6140---Project-master/Data/solutions.csv', header = 0)
+		df = pd.read_csv("Data/solutions.csv", header = 0)
 		df.set_index("Instance", inplace=True)
 		self.ideal = 1.0/(df.loc[self.name]['Value'])
 
@@ -46,12 +65,10 @@ class GeneticAlgorithm():
 
 		Returns:
 		solution: tour path
-		fitness: tour length
 		'''
 		path = list(self.coordinates.keys())
 		random.shuffle(path)
-		#fitness = ut.get_tour_distance(path, self.coordinates)
-		return path#, fitness
+		return path
 
 
 	def nearest_neighbors_tour(self, start_city):
@@ -61,7 +78,6 @@ class GeneticAlgorithm():
 
 		Returns:
 		solution: tour path
-		fitness: tour length,
 		'''
 		solution = []
 		unassigned_nodes = set(self.nodes)
@@ -76,11 +92,24 @@ class GeneticAlgorithm():
 		return solution
 
 	def terminate(self, count):
+		'''
+		Returns True if we have reached the time limit assigned to Genetic Algorithm for 
+		current instaance.
+
+		Returns:
+		Boolean representing whether we have reached cutoff time or not
+		'''
 		if count>= self.max_iteration_time:
 			return True
 		return False
 
 	def selectIndividualsForMutation(self, population):
+		'''
+		Randomly select required number of individuals for mutations
+
+		Returns:
+		population_mutation: List of individuals selected for mutation
+		'''
 		n = self.num_mutation
 		pop = np.arange(self.pop_size)
 		selected = np.random.choice(pop, size = n, replace = False)
@@ -89,6 +118,13 @@ class GeneticAlgorithm():
 		return population_mutation
 
 	def pickIndividualsForCrossover(self, population):
+		'''
+		Select individuals for crossover, using fitness measure of an individual 
+		as its probability distribution for being selected.
+
+		Returns:
+		population_cross: List of individuals selected for crossover
+		'''		
 		all_fitness = self.populationFitness(population)
 		fitness = np.array(all_fitness)
 		cum_fitness = np.cumsum(fitness)
@@ -100,13 +136,15 @@ class GeneticAlgorithm():
 			for j in range(len(cum_fitness)):
 				if r<= cum_fitness[j]:
 					population_cross.append(population[j])
-		# pop = np.arange(self.pop_size)
-		# selected = np.random.choice(pop, size = n, replace = False)
-		# population_np = np.array(population)
-		# population_cross = population_np[selected][:].tolist()
 		return population_cross
 
 	def globalCompetition(self, oldPopulation, newPopulation):
+		'''
+		Select the (pop_size) fittest individuals from oldPopulation and newPopulation combined
+
+		Returns:
+		finalpopulation: list containing fittest individuals for new population
+		'''
 		oP = sorted(oldPopulation, key = self.evaluateFitness, reverse = True)
 		nP = sorted(newPopulation, key = self.evaluateFitness, reverse = True)
 		finalPopulation = [[0 for _ in range(self.N)] for _ in range(self.pop_size)]
@@ -134,6 +172,13 @@ class GeneticAlgorithm():
 		return finalPopulation
 
 	def getBestIndividual(self,population):
+		'''
+		Finds the fittest individual in current population
+
+		Returns:
+		best: fittest individual in the population
+		bestFitness: value of highest fitness
+		'''
 		bestFitness = float('-inf')
 		best = []
 		for i in range(self.pop_size):
@@ -144,17 +189,34 @@ class GeneticAlgorithm():
 		return best, bestFitness
 
 	def populationFitness(self, population):
+		'''
+		Computes and returns fitness of the whole population
+
+		Returns:
+		all_fitness: List of fitness value of each individual
+		'''
 		all_fitness = []
 		for i in range(self.pop_size):
 			all_fitness.append(self.evaluateFitness(population[i]))
 		return all_fitness
 
 	def evaluateFitness(self, current):
-		#print(current)
+		'''
+		Computes fitness of an individual
+
+		Returns:
+		1/path_value: the fitness of an individual
+		'''
 		fitness = ut.get_tour_distance(current, self.coordinates)
 		return (1.0/fitness)
 
 	def mutate(self, current):
+		'''
+		Given an individual, make a random mutation
+
+		Returns:
+		mutant: mutated path
+		'''
 		index1 = random.randint(0,self.N-1)
 		index2 = random.randint(0,self.N-1)
 		mutant = current.copy()
@@ -162,6 +224,13 @@ class GeneticAlgorithm():
 		return mutant
 
 	def crossover(self,mate1, mate2):
+		'''
+		Given 2 individuals/paths, compute a crossover to produce 2 offsprings
+
+		Returns:
+		offspring1: Reuslt of mutation between the 2 individuals
+		offspring2: Reuslt of mutation between the 2 individuals
+		'''
 		index1 = random.randint(0,self.N-1)
 		index2 = random.randint(0,self.N-1)
 		while index2 == index1:
@@ -200,24 +269,38 @@ class GeneticAlgorithm():
 
 
 	def GeneticAlgo(self):
+        '''
+        Genetic Algorithm process:
+        1. Generate initial population using a combination of All nearest neighbors and random paths
+        2. Keep mutating, crossing over individuals from current population to a new population
+        3. Select the fittest individuals from the current and new population to a new current population
+        4. Repeat till we reach cutoof time or get ideal solution
+		
+		Returns:
+		Best Inidvidual(Path) in Final Population
+        '''
 		pop_size = self.pop_size
 		solution = []
 		population = [[0 for _ in range(self.N)] for _ in range(pop_size)]
+
+		##initial population using all nearest neighbors
 		for i in range(self.N):
 			population[i] = self.nearest_neighbors_tour(self.nodes[i])
 
+		##use random tour for remaining initial population
 		for i in range(pop_size-self.N):
 			population[i+self.N] = self.random_tour()
 
 		start_time = time.time()
-		#count =0
 		direc = self.name+"_LS2_" + str(self.max_iteration_time)+ "_" + str(self.randomSeed) + ".trace"
 		f = open(direc, "w")
 		prevBestFitness = float("-inf")
+
+		## while time<cutoff time
 		while(self.terminate(time.time()-start_time)!= True):
 			newPopulation = []
 			bestI, bestFitness = self.getBestIndividual(population)
-
+			## write to the trace file
 			if bestFitness> prevBestFitness:
 				f.write("%s, " %(round((time.time()-start_time),2)))
 				f.write("%s\n"%ut.get_tour_distance(bestI, self.coordinates) )
@@ -227,12 +310,14 @@ class GeneticAlgorithm():
 			if bestFitness == self.ideal:
 				break
 
+			## get a mutation pool, then get mutants
 			mutation_pool = self.selectIndividualsForMutation(population)
 			for i in range(len(mutation_pool)):
 				parent = mutation_pool[i]
 				mutant = self.mutate(parent)
 				newPopulation.append(mutant)
 
+			## get a crossover pool, then get offsprings
 			crossover_pool = self.pickIndividualsForCrossover(population)
 			for i in range(self.num_crossovers):
 				parent1 = crossover_pool[2*i]
@@ -241,7 +326,7 @@ class GeneticAlgorithm():
 				newPopulation.append(offspring1)
 				newPopulation.append(offspring2)
 
-
+			## get the final population, by computing fittest individuals from population+newpopulation
 			population = self.globalCompetition(population, newPopulation)
 
 
@@ -250,7 +335,7 @@ class GeneticAlgorithm():
 
 def genetic_tests():
 	'''
-	Tests out simulated annealing algorithm using default parameters.
+	Tests out genetic algorithm using default parameters.
 	'''
 	all_coordinates = ut.get_all_files()
 	cutoff = '600'
@@ -267,7 +352,7 @@ def genetic_tests():
 		f.close()
 
 		print("Results for {}:".format(city))
-		ut.plotTSP(result, coordinates, title = "Genetic Algorithm: "+city, save_path = "C:/Users/LBJ/Desktop/CANVAS/Algo/CSE-6140---Project-master/Data/Plots/GA3/"+city+".png", verbose = True)
+		ut.plotTSP(result, coordinates, title = "Genetic Algorithm: "+city, save_path = "Data/Plots/GA/"+city+".png", verbose = True)
 	pass
 
 if __name__ == "__main__":
