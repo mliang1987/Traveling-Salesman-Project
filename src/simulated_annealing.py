@@ -27,7 +27,7 @@ class SimulatedAnnealing(object):
         '''
         # Problem parameters
         self.time_start = time_start
-        self.time_delta = 0
+        self.time_delta = max_time/100
         self.initial_temperature = temperature
         self.coordinates = coordinates
         self.distance_matrix = ut.calculate_distance_matrix(self.coordinates)
@@ -111,7 +111,7 @@ class SimulatedAnnealing(object):
 
         '''
         if self.max_time - (time.time()-self.time_start) < 2*self.time_delta:
-            print("\tReached max time")
+            #print("\tReached max time")
             return
 
         t1 = time.time()
@@ -127,7 +127,7 @@ class SimulatedAnnealing(object):
             self.current_fit = current_fit
 
         # While annealing conditions are still met...
-        while self.temperature >= self.stop_temp and self.iteration < self.stop:
+        while self.temperature >= self.stop_temp and self.iteration < self.stop and self.max_time - (time.time()-self.time_start) > 2*self.time_delta:
             candidate = list(self.current_solution)
 
             # Generate next candidate using 2-Opt
@@ -196,11 +196,14 @@ class SimulatedAnnealing(object):
         #return math.sqrt((x1-x2)**2 +(y1-y2)**2)
 
 
-def simulated_annealing_single(file_path, random_seed, time_start, max_time):
+def simulated_annealing_single(file_path, random_seed, time_start, max_time, test_quality = None):
     random.seed(random_seed)
-    
+    best_fit = None
+    best_solution = None
     coordinates = ut.read_tsp_file(file_path)
     sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-6, temperature = 1e+10, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time)
+    if test_quality != None:
+        sa.solutions.append(test_quality)
     sa.simulated_annealing(restart = True)
     best_fit = sa.best_fit
     best_solution = sa.best_solution
@@ -216,9 +219,12 @@ def simulated_annealing_single(file_path, random_seed, time_start, max_time):
         if(sa.best_fit < best_fit):
             best_fit = sa.best_fit
             best_solution = sa.best_solution
-    print("Results for {}: {}\n\tFitness: {}\n\tTime: {}".format(file_path, best_solution, best_fit, time.time()-time_start))
+    #print("Results for {}: {}\n\tFitness: {}\n\tTime: {}".format(file_path, best_solution, best_fit, time.time()-time_start))
     
-    return best_fit, list(np.asarray(best_solution)+1), sa.trace
+    if best_solution == None:
+        return best_fit, None, sa.trace
+    else:
+        return best_fit, list(np.asarray(best_solution)+1), sa.trace
 
 if __name__ == "__main__":
     a = [4,5,6]
