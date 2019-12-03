@@ -10,8 +10,8 @@ from scipy.ndimage.filters import gaussian_filter1d
 
 def run_qrtd_experiment(city, optimal):
     file_path = "Data/{}.tsp".format(city)
-    times = [1, 1.2, 1.4, 1.6, 1.8, 2.0]
-    qualities = [0, 0.2, 0.4]
+    times = [1, 1.2, 1.4, 1.6, 1.8, 2.0, 3.0, 4.0, 5.0]
+    qualities = [0, 0.1, 0.2, 0.4]
     df2 = pd.DataFrame(index = times, columns = qualities)
     for quality in qualities:
         print("Running quality",quality)
@@ -37,13 +37,12 @@ def run_qrtd_experiment(city, optimal):
     print("Plotting")
     plt.figure()
     plt.gcf().subplots_adjust(bottom=0.2)
-    plt.axis([1,1.4,-0.1,1.1])
     plt.plot(df2[0], color = 'b', linewidth = 1.0)
-    plt.plot(df2[0.2], color = 'g', linewidth = 1.0)
-    plt.plot(df2[0.4], color = 'r', linewidth = 1.0)
-    #plt.plot(df2[0.5], color = 'b', linewidth = 1.0, linestyle = '--')
+    plt.plot(df2[0.1], color = 'g', linewidth = 1.0)
+    plt.plot(df2[0.2], color = 'r', linewidth = 1.0)
+    plt.plot(df2[0.4], color = 'b', linewidth = 1.0, linestyle = '--')
     #plt.plot(df2[0.8], color = 'g', linewidth = 1.0, linestyle = '--')
-    plt.legend(["Opt", "0.2 err", "0.4 err", "1.0 err", "1.5 err"])
+    plt.legend(["Opt", "0.1 err", "0.2 err", "0.4 err", "1.5 err"])
     plt.title("Qualified RTDs for {}".format(city), fontsize = 10)
     plt.ylabel("Probability(Solve)", fontsize = 8)
     plt.xlabel("Run-time [CPU sec]", fontsize = 8)

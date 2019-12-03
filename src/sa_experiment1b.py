@@ -49,4 +49,4 @@ def run_sqd_experiment(city, optimal):
 
 if __name__ == "__main__":
 	run_sqd_experiment("Atlanta", 2003763)
-	run_sqd_experiment("Champaign")
+	run_sqd_experiment("Champaign", 52643)
