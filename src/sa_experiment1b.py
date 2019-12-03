@@ -35,13 +35,13 @@ def run_sqd_experiment(city, optimal):
 	print("Plotting...")
 	plt.figure()
 	plt.gcf().subplots_adjust(bottom=0.2)
-	plt.axis([0,1.2,-0.1,1.1])
+	plt.axis([0,1.6,-0.1,1.1])
 	plt.plot(df2[0.01], color = 'b', linewidth = 1.0)
 	plt.plot(df2[0.05], color = 'g', linewidth = 1.0)
 	plt.plot(df2[0.1], color = 'r', linewidth = 1.0)
 	plt.plot(df2[0.5], color = 'b', linewidth = 1.0, linestyle = '--')
 	plt.plot(df2[1], color = 'g', linewidth = 1.0, linestyle = '--')
-	plt.legend([0.01, 0.05, 0.1, 0.5, 1])
+	plt.legend(["0.01s", "0.05s", "0.1s", "0.5s", "1s", "5s"])
 	plt.title("Solution Quality Distributions for {}".format(city), fontsize = 10)
 	plt.ylabel("Probability(Solve)", fontsize = 8)
 	plt.xlabel("Relative Solution Quality [%]", fontsize = 8)
@@ -49,4 +49,4 @@ def run_sqd_experiment(city, optimal):
 
 if __name__ == "__main__":
 	run_sqd_experiment("Atlanta", 2003763)
-	run_sqd_experiment("Champaign", 52643)
+	run_sqd_experiment("Champaign")

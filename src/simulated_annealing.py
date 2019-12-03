@@ -209,7 +209,7 @@ def simulated_annealing_single(file_path, random_seed, time_start, max_time, tes
     best_solution = sa.best_solution
     while max_time-(time.time()-time_start)> 2*sa.time_delta and sa.best_fit not in sa.solutions:
         trace = sa.trace
-        print("Reiniting SA.")
+        #print("Reiniting SA.")
         sa.__init__(file_path, coordinates, stop_temp = 1e-6, temperature = 1e+10, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 0)
         sa.trace = trace
         sa.global_best_fit = best_fit
