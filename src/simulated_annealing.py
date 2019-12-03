@@ -59,7 +59,7 @@ class SimulatedAnnealing(object):
         self.trace = []
         self.result = []
         #self.convergence = min(20, int(self.N/2))
-        self.convergence = self.N if self.N < 20 else  20
+        self.convergence = self.N if self.N < 30 else  30
         self.restart_count = 0
         self.tour_flag = tour_flag
 
@@ -170,7 +170,7 @@ class SimulatedAnnealing(object):
         if restart and not self.converged():
             self.restart_count += 1
             self.temperature = self.initial_temperature* (10**self.restart_count)
-            print("\tIteration: {}, Temperature: {}, Current: {}, Local Best: {}, Global Best: {}".format(self.restart_count, self.temperature, self.current_fit, self.best_fit, self.global_best_fit))
+            #print("\tIteration: {}, Temperature: {}, Current: {}, Local Best: {}, Global Best: {}".format(self.restart_count, self.temperature, self.current_fit, self.best_fit, self.global_best_fit))
             self.iteration = 1
             self.simulated_annealing(restart = True, current_solution = self.best_solution, current_fit = self.best_fit)
 
@@ -200,14 +200,14 @@ def simulated_annealing_single(file_path, random_seed, time_start, max_time):
     random.seed(random_seed)
     
     coordinates = ut.read_tsp_file(file_path)
-    sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-8, temperature = 1e+10, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time)
+    sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-6, temperature = 1e+10, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time)
     sa.simulated_annealing(restart = True)
     best_fit = sa.best_fit
     best_solution = sa.best_solution
     while max_time-(time.time()-time_start)> 2*sa.time_delta and sa.best_fit not in sa.solutions:
         trace = sa.trace
         print("Reiniting SA.")
-        sa.__init__(file_path, coordinates, stop_temp = 1e-8, temperature = 1e+10, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 0)
+        sa.__init__(file_path, coordinates, stop_temp = 1e-6, temperature = 1e+10, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 0)
         sa.trace = trace
         sa.global_best_fit = best_fit
         #sa.best_fit = best_fit
