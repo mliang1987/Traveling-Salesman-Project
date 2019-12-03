@@ -8,11 +8,10 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import make_interp_spline, BSpline
 from scipy.ndimage.filters import gaussian_filter1d
 
-if __name__ == "__main__":
-	optimal = 2003763
-	file_path = "Data/Atlanta.tsp"
-	times = [0.01, 0.05, 0.1, 0.5, 1]
-	qualities = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.2]
+def run_sqd_experiment(city, optimal):
+	file_path = "Data/{}.tsp".format(city)
+	times = [0.01, 0.05, 0.1, 0.5, 1, 5]
+	qualities = [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6]
 	df2 = pd.DataFrame(index = qualities, columns = times)
 	for max_time in times:
 		print("Running time",max_time)
@@ -30,8 +29,8 @@ if __name__ == "__main__":
 		df2[max_time] = p_values
 	
 	print("Smoothing out splines...")
-	for time in times:
-		df2[time] = gaussian_filter1d(df2[time].values.tolist(), sigma = 0.5)
+	for t in times:
+		df2[t] = gaussian_filter1d(df2[t].values.tolist(), sigma = 1)
 
 	print("Plotting...")
 	plt.figure()
@@ -43,7 +42,11 @@ if __name__ == "__main__":
 	plt.plot(df2[0.5], color = 'b', linewidth = 1.0, linestyle = '--')
 	plt.plot(df2[1], color = 'g', linewidth = 1.0, linestyle = '--')
 	plt.legend([0.01, 0.05, 0.1, 0.5, 1])
-	plt.title("Solution Quality Distributions for Atlanta", fontsize = 10)
+	plt.title("Solution Quality Distributions for {}".format(city), fontsize = 10)
 	plt.ylabel("Probability(Solve)", fontsize = 8)
 	plt.xlabel("Relative Solution Quality [%]", fontsize = 8)
-	plt.savefig("sqd_ls1_atlanta.png")
+	plt.savefig("sqd_ls1_{}.png".format(city))
+
+if __name__ == "__main__":
+	run_sqd_experiment("Atlanta", 2003763)
+	run_sqd_experiment("Champaign", 52643)

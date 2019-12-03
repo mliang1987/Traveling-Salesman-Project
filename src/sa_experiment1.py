@@ -8,10 +8,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import make_interp_spline, BSpline
 from scipy.ndimage.filters import gaussian_filter1d
 
-
-if __name__ == "__main__":
-    optimal = 2003763
-    file_path = "Data/Atlanta.tsp"
+def run_qrtd_experiment(city, optimal):
+    file_path = "Data/{}.tsp".format(city)
     times = [0.01, 0.1, 1, 10, 100]
     qualities = [0, 0.2, 0.4, 0.6, 0.8]
     df2 = pd.DataFrame(index = times, columns = qualities)
@@ -32,7 +30,7 @@ if __name__ == "__main__":
     
     print("Smoothing out splines...")
     for quality in qualities:
-        df2[quality] = gaussian_filter1d(df2[quality].values.tolist(), sigma = 0.5)
+        df2[quality] = gaussian_filter1d(df2[quality].values.tolist(), sigma = 1.0)
 
     print("Plotting")
     plt.figure()
@@ -44,7 +42,11 @@ if __name__ == "__main__":
     plt.plot(df2[0.6], color = 'b', linewidth = 1.0, linestyle = '--')
     plt.plot(df2[0.8], color = 'g', linewidth = 1.0, linestyle = '--')
     plt.legend([0, 0.2, 0.4, 0.6, 0.8])
-    plt.title("Qualified RTDs for Atlanta", fontsize = 10)
+    plt.title("Qualified RTDs for {}".format(city), fontsize = 10)
     plt.ylabel("Probability(Solve)", fontsize = 8)
     plt.xlabel("Run-time [CPU sec]", fontsize = 8)
-    plt.savefig("qrtd_ls1_atlanta.png")
+    plt.savefig("qrtd_ls1_{}.png".format(city))
+
+if __name__ == "__main__":
+    run_qrtd_experiment("Atlanta", 2003763)
+	run_qrtd_experiment("Champaign", 52643)
