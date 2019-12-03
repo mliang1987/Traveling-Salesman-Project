@@ -5,6 +5,8 @@ import math
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.interpolate import make_interp_spline, BSpline
+from scipy.ndimage.filters import gaussian_filter1d
 
 if __name__ == "__main__":
 	optimal = 2003763
@@ -27,6 +29,9 @@ if __name__ == "__main__":
 			p_values.append(p)
 		df2[max_time] = p_values
 	
+	for time in times:
+		df2[time] = gaussian_filter1d(df2[time].values.tolist(), sigma = 0.5)
+
 	plt.figure()
 	plt.gcf().subplots_adjust(bottom=0.2)
 	plt.axis([0,1.2,-0.1,1.1])
