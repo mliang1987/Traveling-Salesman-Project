@@ -29,9 +29,11 @@ if __name__ == "__main__":
 			p_values.append(p)
 		df2[max_time] = p_values
 	
+	print("Smoothing out splines...")
 	for time in times:
 		df2[time] = gaussian_filter1d(df2[time].values.tolist(), sigma = 0.5)
 
+	print("Plotting...")
 	plt.figure()
 	plt.gcf().subplots_adjust(bottom=0.2)
 	plt.axis([0,1.2,-0.1,1.1])

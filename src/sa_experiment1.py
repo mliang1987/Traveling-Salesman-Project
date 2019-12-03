@@ -22,7 +22,7 @@ if __name__ == "__main__":
         for max_time in times:
             print("\tRunning times",max_times)
             experiment = []
-            for i in range(30):
+            for i in range(20):
                 sol, _, _ = sa.simulated_annealing_single(file_path, random.randint(1,100), time.time(), max_time, test_quality = test_quality)
                 experiment.append(sol<=test_quality)
             t_count = experiment.count(True)
@@ -30,9 +30,11 @@ if __name__ == "__main__":
             p_values.append(p)
         df2[quality] = p_values
     
+    print("Smoothing out splines...")
     for quality in qualities:
         df2[quality] = gaussian_filter1d(df2[quality].values.tolist(), sigma = 0.5)
 
+    print("Plotting")
     plt.figure()
     plt.gcf().subplots_adjust(bottom=0.2)
     plt.axis([0,100,-0.1,1.1])
