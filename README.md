@@ -3,10 +3,10 @@ Implementation of 4 solvers for the TSP: branch-and-bound, MST-based approximati
 annealing, and genetic algorithm.
 
 # Files
-\_ requirements.txt: Python dependency modules.
 \_ Data: input files.
   \_ ...
 \_ code
+  \_ requirements.txt: Python dependency modules.
   \_ __init__.py: Empty file.
   \_ tsp_main.py: Main program that calls solvers.
   \_ util.py: Utilities.
