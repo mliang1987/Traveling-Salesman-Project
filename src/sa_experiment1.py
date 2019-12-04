@@ -1,3 +1,22 @@
+####################################################################################################
+# CSE 6140 - Fall 2019
+#   Rodrigo Alves Lima
+#   Shichao Liang
+#   Jeevanjot Singh
+#   Kevin Tynes
+####################################################################################################
+
+
+"""
+This file contains the QRTD experiment for Simulated Annealing.
+
+For a set of fixed qualities, the algorithm iterates through specified time constraints 
+for 50 iterations, calculating the probability of a solution of at least the specified quality being found.
+
+Then, plots the result.
+"""
+
+
 import simulated_annealing as sa
 import random
 import time
@@ -9,6 +28,9 @@ from scipy.interpolate import make_interp_spline, BSpline
 from scipy.ndimage.filters import gaussian_filter1d
 
 def run_qrtd_experiment(city, optimal):
+    """
+    Plots the QRTD for a given city instance and the optimal path for that city.
+    """
     file_path = "Data/{}.tsp".format(city)
     times = [0.001, 0.01, 0.1, 1, 10]
     qualities = [0, 0.1, 0.5]
