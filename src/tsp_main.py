@@ -19,6 +19,7 @@ import sys
 import time
 
 from branch_and_bound import BranchAndBoundSolver
+import GA as ga
 from MST import MSTSolver
 import simulated_annealing as sa
 

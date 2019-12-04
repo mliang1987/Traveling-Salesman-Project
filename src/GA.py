@@ -346,7 +346,7 @@ def ga_single(file_path, max_time, random_seed = 0,  test_quality = None):
 	result,_ = ga.GeneticAlgo()
 	cost = ut.get_tour_distance(result, coordinates)
 	trace = ga.trace
-	return cost,result,trace
+	return cost,[x + 1 for x in result],trace
 
 
 
