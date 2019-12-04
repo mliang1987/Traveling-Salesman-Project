@@ -5,12 +5,13 @@ import math
 import matplotlib.pyplot as plt
 import pandas as pd
 import statistics
+import numpy as np
 from scipy.spatial import distance_matrix
 
 
 class SimulatedAnnealing(object):
 
-    def __init__(self, name, coordinates, random_seed = 0, temperature = 1e+10, alpha = 0.995, max_iterations=100000, stop_temp = 1e-8, time_start = time.time(), max_time = 600, tour_flag = 0):
+    def __init__(self, name, coordinates, random_seed = 0, temperature = 1e+10, alpha = 0.995, max_iterations=1000000, stop_temp = 1e-8, time_start = time.time(), max_time = 600, tour_flag = 0):
         '''
         Constructor for Simulated Annealing problem.
 
@@ -26,7 +27,7 @@ class SimulatedAnnealing(object):
         '''
         # Problem parameters
         self.time_start = time_start
-        self.time_delta = 0
+        self.time_delta = max_time/100
         self.initial_temperature = temperature
         self.coordinates = coordinates
         self.distance_matrix = ut.calculate_distance_matrix(self.coordinates)
@@ -51,14 +52,14 @@ class SimulatedAnnealing(object):
 
         # Solutions
         self.best_solution = None
+        self.global_best_fit = float("Inf")
         self.best_fit = float("Inf")
-        self.fitness_list=[]
 
         # Restarts
         self.trace = []
         self.result = []
-        #self.convergence = min(10, int(self.N/2))
-        self.convergence = self.N
+        #self.convergence = min(20, int(self.N/2))
+        self.convergence = self.N if self.N < 30 else  30
         self.restart_count = 0
         self.tour_flag = tour_flag
 
@@ -98,7 +99,6 @@ class SimulatedAnnealing(object):
         if fitness < self.best_fit:
             self.best_fit = fitness
             self.best_solution = solution
-        self.fitness_list.append(fitness)
         return solution, fitness
 
     def simulated_annealing(self, restart = False, current_solution = None, current_fit = None):
@@ -110,8 +110,8 @@ class SimulatedAnnealing(object):
         3. Iterate by lowering temperature
 
         '''
-        if self.max_time - (time.time()-self.time_start) < self.time_delta:
-            print("\tReached max time")
+        if self.max_time - (time.time()-self.time_start) < 2*self.time_delta:
+            #print("\tReached max time")
             return
 
         t1 = time.time()
@@ -127,7 +127,7 @@ class SimulatedAnnealing(object):
             self.current_fit = current_fit
 
         # While annealing conditions are still met...
-        while self.temperature >= self.stop_temp and self.iteration < self.stop:
+        while self.temperature >= self.stop_temp and self.iteration < self.stop and self.max_time - (time.time()-self.time_start) > 2*self.time_delta:
             candidate = list(self.current_solution)
 
             # Generate next candidate using 2-Opt
@@ -143,7 +143,7 @@ class SimulatedAnnealing(object):
                 self.current_fit = candidate_fit
                 self.current_solution = candidate
             else:
-                p = math.exp(-abs(candidate_fit - self.current_fit)/self.temperature)
+                p = math.exp((self.current_fit- candidate_fit)/self.temperature)
                 r = random.random()
                 if r < p:
                     self.current_fit = candidate_fit
@@ -152,14 +152,13 @@ class SimulatedAnnealing(object):
                 self.restart_count = 0
                 self.best_fit = self.current_fit
                 self.best_solution = self.current_solution
+                if self.best_fit < self.global_best_fit:
+                    self.global_best_fit = self.best_fit
+                    self.trace.append([(time.time()-self.time_start), self.global_best_fit, self.best_solution])
             
             # Cooling for next iteration
             self.temperature *= self.alpha
             self.iteration += 1
-            self.fitness_list.append(self.current_fit)
-        
-        self.trace.append(self.best_solution)
-        self.result.append(self.best_fit)
 
         self.time_delta = max(self.time_delta, time.time()-t1)
         
@@ -168,17 +167,18 @@ class SimulatedAnnealing(object):
             return
         
         # Restart with current solution?
-        if restart:
+        if restart and not self.converged():
             self.restart_count += 1
             self.temperature = self.initial_temperature* (10**self.restart_count)
-            print("\tIteration: {}, Current: {}, Best: {}".format(self.restart_count, self.current_fit, self.best_fit))
+            #print("\tIteration: {}, Temperature: {}, Current: {}, Local Best: {}, Global Best: {}".format(self.restart_count, self.temperature, self.current_fit, self.best_fit, self.global_best_fit))
             self.iteration = 1
             self.simulated_annealing(restart = True, current_solution = self.best_solution, current_fit = self.best_fit)
 
     def converged(self):
-        if len(self.result) >= self.convergence:
-            return len(set(self.result[-self.convergence:])) == 1
-        return False
+        #if len(self.result) >= self.convergence:
+        #    return len(set(self.result[-self.convergence:])) == 1
+        #return False
+        return self.restart_count > self.convergence or self.iteration >= self.stop
 
     def distance(self, n1, n2):
         '''
@@ -195,58 +195,38 @@ class SimulatedAnnealing(object):
         #x2,y2 = self.coordinates[n2]
         #return math.sqrt((x1-x2)**2 +(y1-y2)**2)
 
-   
-def simulated_annealing_tests():
-    '''
-    Tests out simulated annealing algorithm using default parameters.
-    '''
-    all_coordinates = ut.get_all_files()
-    for city, coordinates in all_coordinates.items():
-        print("Results for {}:".format(city))
-        sa = SimulatedAnnealing(city, coordinates, alpha = 0.999, max_time = 10000)
-        sa.simulated_annealing(restart = True)
-        ut.plotTSP(sa.best_solution, coordinates, title = "Simulated Annealing: "+city, save_path = "Plots/SA/"+city+".png", verbose = True, show_plots = False)
-    pass
 
-def simulated_annealing_single(file_path, random_seed, time_start, max_time):
+def simulated_annealing_single(file_path, random_seed, time_start, max_time, test_quality = None):
     random.seed(random_seed)
-    
+    best_fit = None
+    best_solution = None
     coordinates = ut.read_tsp_file(file_path)
-    sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-8, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time)
+    sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-6, temperature = 1e+10, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time)
+    if test_quality != None:
+        sa.solutions.append(test_quality)
     sa.simulated_annealing(restart = True)
     best_fit = sa.best_fit
     best_solution = sa.best_solution
-    while max_time-(time.time()-time_start)> sa.time_delta and sa.best_fit not in sa.solutions:
-        sa = SimulatedAnnealing(file_path, coordinates, stop_temp = 1e-8, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 1)
+    while max_time-(time.time()-time_start)> 2*sa.time_delta and sa.best_fit not in sa.solutions:
+        trace = sa.trace
+        #print("Reiniting SA.")
+        sa.__init__(file_path, coordinates, stop_temp = 1e-6, temperature = 1e+10, random_seed = random.randint(0, 100000), alpha = 0.999, time_start = time_start, max_time = max_time, tour_flag = 0)
+        sa.trace = trace
+        sa.global_best_fit = best_fit
         #sa.best_fit = best_fit
         #sa.best_solution = best_solution
         sa.simulated_annealing(restart = True)
         if(sa.best_fit < best_fit):
             best_fit = sa.best_fit
             best_solution = sa.best_solution
-    print("Results for {}: {}\n\tFitness: {}\n\tTime: {}".format(file_path, best_solution, best_fit, time.time()-time_start))
-    return best_fit
+    #print("Results for {}: {}\n\tFitness: {}\n\tTime: {}".format(file_path, best_solution, best_fit, time.time()-time_start))
+    
+    if best_solution == None:
+        return best_fit, None, sa.trace
+    else:
+        return best_fit, list(np.asarray(best_solution)+1), sa.trace
 
 if __name__ == "__main__":
-    times = []
-    fits = []
-    for i in range(5):
-        start_time = time.time()
-        #bf = simulated_annealing_single("Data\\Atlanta.tsp", int(time.time()), start_time, 600)
-        bf = simulated_annealing_single("Data\\Berlin.tsp", int(time.time()), start_time, 600)
-        #bf = simulated_annealing_single("Data\\Boston.tsp", int(time.time()), time.time(), 600)
-        #bf = simulated_annealing_single("Data\\Champaign.tsp", int(time.time()), time.time(), 600)
-        #bf = simulated_annealing_single("Data\\Cincinnati.tsp", int(time.time()), time.time(), 600)
-        #bf = simulated_annealing_single("Data\\Denver.tsp", int(time.time()), time.time(), 600)
-        #bf = simulated_annealing_single("Data\\NYC.tsp", int(time.time()), time.time(), 600)
-        #bf = simulated_annealing_single("Data\\Philadelphia.tsp", int(time.time()), time.time(), 600)
-        #bf = simulated_annealing_single("Data\\Roanoke.tsp", int(time.time()), time.time(), 600)
-        #bf = simulated_annealing_single("Data\\SanFrancisco.tsp", int(time.time()), time.time(), 600)
-        #bf = simulated_annealing_single("Data\\Toronto.tsp", int(time.time()), time.time(), 600)
-        #bf = simulated_annealing_single("Data\\UKansasState.tsp", int(time.time()), time.time(), 600)
-        #bf = simulated_annealing_single("Data\\UMissouri.tsp", int(time.time()), time.time(), 600)
-        fits.append(bf)
-        times.append(time.time()-start_time)
-    print(statistics.mean(times))
-    print(statistics.mean(fits))
-    
+    a = [4,5,6]
+    print(a)
+    print(list(np.asarray(a)-1))
