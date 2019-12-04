@@ -1,6 +1,35 @@
+####################################################################################################
+# CSE 6140 - Fall 2019
+#   Kevin Tynes
+#   Rodrigo Alves Lima
+#   Shichao Liang
+#   Jeevanjot Singh
+####################################################################################################
+
+'''
+This file has the implementation of the MST 2-approximation algorithm.
+
+The Minimum Spanning Tree (MST)is a 2-approximate algorithm whose
+approximation guarantee hingeson the Triangle Inequality property of
+the TSP problem instance.The problem is represented as a weighted
+undirected graph,G=(V,E), with cities as nodes and paths between
+cities as edges. Costof an edge (u,v) is defined as Euclidean distance
+from city u to cityv. This algorithm chooses the city with index 0,c0,
+to be the start-ing point of the cycle. Using c_0 as a root, a Minimum
+Spanning Treeis constructed using Prim’s Algorithm. We greedily add
+the mini-mum edge cost, and update all minimum distances as needed
+untilall nodes are in set T. Using the parent node data, we backtrack
+thechildren of each node starting with the root node to construct
+anadjacency list. We then perform Depth First Search (DFS) to cre-ate
+a euler tour, a tree traversal where nodes are added as they
+arereached in the DFS algorithm. Duplicates of nodes are
+removed,andc0is appended to the end to find the hamiltonian tour
+solution.
+'''
 import util as ut
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 from heapq import heappush, heappop
 import time
 
@@ -21,7 +50,7 @@ class MST(object):
         self.N = len(coordinates)
         self.nodes = set(self.coordinates.keys())
 
-        self.root = 1
+        self.root = 0
         self.non_root_nodes = self.nodes.copy()
         self.non_root_nodes.discard(self.root)
 
@@ -39,12 +68,21 @@ class MST(object):
         parent_nodes = self.prim(self.coordinates)
         child_nodes = self.parents_to_children(parent_nodes) #adjacency list
         euler_walk = []
-        euler_walk = self.DFS(euler_walk,child_nodes,1)
+        euler_walk = self.DFS(euler_walk,child_nodes,self.root)
         solution = self.remove_duplicates(euler_walk)
         solution.append(self.root)
         self.solution = solution
 
     def prim(self, coordinates):
+        ''' 
+        Implementation of Prim's algorithm to create a MST
+        
+        Input:
+        coordinates: dictionary of node IDs to coordinates
+
+        Returns:
+        Pred: Predecessor data for each node in generated 
+        '''
         Q = []      # Priority queue
         cost = {}   # Cost to add a vertex to the tree
         pred = {}   # Predecessor Nodes
@@ -67,6 +105,15 @@ class MST(object):
         return pred
 
     def parents_to_children(self, parent_nodes):
+        ''' 
+        Converts pred datastructure to a dictionary that stores child_nodes for each node, essentially an adjacency list
+        
+        Input:
+        parent nodes: dictionary where key is each node and value is all the parent nodes
+
+        Returns:
+        child nodes: Predecessor dictionary where key is each node and value is all the parent nodes
+        '''
         child_nodes = {}
         for parent in self.nodes:
             child_nodes[parent] = []
@@ -76,7 +123,19 @@ class MST(object):
                 child_nodes[parent].append(child)
         return child_nodes
 
+
     def DFS(self, visited, child_nodes, node):
+        ''' 
+        Depth first search implementation across the MST
+        
+        Input:
+        visited: list of currently visited nodes, initially empty
+        child_nodes: dictionary of all child_nodes for each node
+        node: Starts as root node, becomes child of current node in recursive call
+
+        Returns:
+        visited: list of nodes visited with duplicates
+        '''
         if node not in visited:
             visited.append(node)
             for child in child_nodes[node]:
@@ -84,6 +143,15 @@ class MST(object):
         return visited
 
     def remove_duplicates(self, full_walk):
+        ''' 
+        Depth first search implementation across the MST
+        
+        Input:
+        visited: list of nodes visited with duplicates
+
+        Returns:
+        preorder_walk: list of nodes visited without duplicates, tour without starting node at end
+        '''
         nodes_seen = set()
         preorder_walk = []
         for node in full_walk:
@@ -114,18 +182,85 @@ def MST_tests():
     start = time.time() 
     all_coordinates = ut.get_all_files()
     for city, coordinates in all_coordinates.items():
+        time_arr = []
         print('city: ',city)
         #print('coordinates: ',coordinates)
         #print(coordinates)
-        mst = MST(city, coordinates)
-        mst.MST()
         print("Results for {}:".format(city))
-        print("N: ",mst.N)
-        print('solution: ',mst.solution)
-        ut.plotTSP(mst.solution, coordinates, title = "MST: "+city, save_path = "Plots/MST/"+city+".png", verbose = True)
+        #print("N: ",mst.N)
+        for i in range(10):
+            start = time.time() 
+            mst = MST(city, coordinates)
+            mst.MST()
+            #print('solution: ',mst.solution)
+            #ut.plotTSP(mst.solution, coordinates, title = "MST: "+city, save_path = "Plots/MST/"+city+".png", verbose = True)
+            end = time.time()
+            time_arr.append(end-start)
+        #print(time_arr)
+        print('Average Time elapsed:',np.mean(time_arr))
     pass
-    end = time.time()
-    print('Time elapsed:',end-start)
+    # end = time.time()
+    # print('Time elapsed:',end-start)
+
+def MSTSolver(inst_arg,time_arg):
+    '''
+        Runs MST approximation algorithm for inst_arg instance and 
+        outputs cost, tour, and trace to return to the tsp_main file.
+
+        Parameters:
+        inst_arg: filepath string of a single input instance.
+        time_arg: cutoff time in
+
+        Returns:
+        cost: tour cost
+        tour: list of cities in tour
+        trace: tuple of (time, solution)
+    '''
+    start = time.time()
+    inst_coordinates = ut.read_tsp_file(inst_arg)
+    #all_coordinates = ut.get_all_files()
+    #inst_coordinates = all_coordinates[inst_arg]
+    N = len(inst_coordinates)
+    #print('city: ',inst_arg)
+    #print('coordinates: ',inst_coordinates)
+    #print("Results for {}:".format(inst_arg))
+    #init data structures
+
+    #trivial solution
+    mst = MST(inst_arg, inst_coordinates)
+    best_tour = list(mst.nodes)
+    best_tour.append(mst.root)
+    best_cost = ut.get_tour_distance(best_tour, inst_coordinates)
+    trace = [(0,best_cost)]
+
+    start = time.time()
+    for i in range(N):
+
+        #update root node
+        mst.non_root_nodes.add(mst.root)
+        mst.root = i
+        mst.non_root_nodes.discard(mst.root)
+
+        mst.MST()
+        curr_time = time.time()
+        duration = curr_time-start
+
+        tour = mst.solution
+        cost = ut.get_tour_distance(tour, inst_coordinates)
+        
+        if cost < best_cost and duration < time_arg:
+            best_cost = cost
+            best_tour = tour
+            trace_line = (duration,cost)
+            trace.append(trace_line)
+        #print('solution: ',tour)
+        #print('cost: ',cost)
+    #print('solution: ',best_tour)
+    #print('cost: ',best_cost)
+    #print('time: ',duration)
+    #print('trace: ',trace)
+    return best_cost, best_tour, trace
 
 if __name__ == "__main__":
-    MST_tests()
+    #MST_tests()
+    MSTSolver("../Data/Cincinnati.tsp",0.00001)

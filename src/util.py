@@ -117,7 +117,7 @@ def get_all_files(path = 'Data/'):
     TODO: Currently hard-coded paths, need to conform to spec on project desc.
     '''
     all_coordinates = {}
-    os.chdir("Data/")
+    os.chdir("../Data/")
     files = glob.glob('*.tsp')
     for file in files:
         all_coordinates[file.split(".")[0]] = read_tsp_file(file)
