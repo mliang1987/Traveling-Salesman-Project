@@ -1,3 +1,25 @@
+####################################################################################################
+# CSE 6140 - Fall 2019
+#   Rodrigo Alves Lima
+#   Shichao Liang
+#   Jeevanjot Singh
+#   Kevin Tynes
+####################################################################################################
+
+
+"""
+This file has the implementation of the Simualted Annealing (SA) algorithm with local and global restarts.
+
+SA probabilistically decides to move from a state to a candidate neighbor state in order to 
+minimize the thermodynamic energy of the system.  This iterative process stops once an acceptable 
+solution is found, or until a computational budget is exceeded.  In general, the probability that 
+simulated annealing terminates with the global minima converges to 1 as the cooling schedule is lengthened.
+
+For our algorithm, we start with an initial guess of temperature, then restart with a slightly higher 
+temperature, reducing by the same geometric ratio every iteration.  Once the number of local restarts has
+reached convergence, we restart the whole problem with a new initial guess.  In a sense, 
+"""
+
 import util as ut
 import time
 import random
@@ -197,6 +219,9 @@ class SimulatedAnnealing(object):
 
 
 def simulated_annealing_single(file_path, random_seed, time_start, max_time, test_quality = None):
+    '''
+    Runs a single instance of the simulated annealing algorithm.
+    '''
     random.seed(random_seed)
     best_fit = None
     best_solution = None
