@@ -53,7 +53,7 @@ def main():
     cost, tour, trace = sa.simulated_annealing_single(inst_arg, int(seed_arg), time_init, float(time_arg))
   elif (alg_arg == "LS2"):
     # Genetic
-    raise NotImplementedError
+    cost, tour, trace = ga.ga_single(inst_arg, float(time_arg), int(seed_arg))
 <<<<<<< HEAD
   if (alg_arg == "BnB"):
     cost, tour, trace = solver.solve()

@@ -182,22 +182,21 @@ def MST_tests():
     start = time.time() 
     all_coordinates = ut.get_all_files()
     for city, coordinates in all_coordinates.items():
-        time_arr = []
         print('city: ',city)
         #print('coordinates: ',coordinates)
         #print(coordinates)
         print("Results for {}:".format(city))
-        #print("N: ",mst.N)
-        for i in range(10):
-            start = time.time() 
-            mst = MST(city, coordinates)
-            mst.MST()
-            #print('solution: ',mst.solution)
-            #ut.plotTSP(mst.solution, coordinates, title = "MST: "+city, save_path = "Plots/MST/"+city+".png", verbose = True)
-            end = time.time()
-            time_arr.append(end-start)
+        start = time.time() 
+        mst = MST(city, coordinates)
+        mst.MST()
+        print("N: ",mst.N)
+        print('solution: ',mst.solution)
+        cost = ut.get_tour_distance(mst.solution, coordinates)
+        print('cost:',cost)
+        #ut.plotTSP(mst.solution, coordinates, title = "MST: "+city, save_path = "Plots/MST/"+city+".png", verbose = True)
+        end = time.time()
         #print(time_arr)
-        print('Average Time elapsed:',np.mean(time_arr))
+        print('Time elapsed:',end-start)
     pass
     # end = time.time()
     # print('Time elapsed:',end-start)
@@ -262,5 +261,5 @@ def MSTSolver(inst_arg,time_arg):
     return best_cost, best_tour, trace
 
 if __name__ == "__main__":
-    #MST_tests()
-    MSTSolver("../Data/Cincinnati.tsp",0.00001)
+    MST_tests()
+    #MSTSolver("../Data/Cincinnati.tsp",0.00001)
