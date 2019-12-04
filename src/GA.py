@@ -9,28 +9,28 @@ import math
 
 class GeneticAlgorithm():
 
-	def __init__(self, name,  coordinates, randomSeed = 0, pop_size = 300, max_iteration_time = 600, num_crossovers = 140, num_mutation = 250):
-        '''
-        Constructor for Genetic Algorithms.
+	def __init__(self, name,  coordinates, randomSeed = 0, pop_size = 300, max_iteration_time = 60, num_crossovers = 140, num_mutation = 250, test_quality = None):
+		'''
+		Constructor for Genetic Algorithms.
 
-        Parameters:
-        name: String for the name of the file
-        coordinates: dictionary of node IDs to coordinates.
+		Parameters:
+		name: String for the name of the file
+		coordinates: dictionary of node IDs to coordinates.
 
-        Optional:
-        randomSeed: random seed for Python random number generator
-        pop_size: population size of the sample
-        max_iteration_time: maximum time in seconds before we stop 
-        num_crossovers: number of crossovers from one population to the next
-        num_mutation: number of mutations one individuals on each population
-        '''
-        # Problem parameters
+		Optional:
+		randomSeed: random seed for Python random number generator
+		pop_size: population size of the sample
+		max_iteration_time: maximum time in seconds before we stop 
+		num_crossovers: number of crossovers from one population to the next
+		num_mutation: number of mutations one individuals on each population
+		'''
+
+		# Problem parameters
 		self.coordinates = coordinates
 		self.name = name
 		self.N = len(coordinates)
 		self.nodes = list(self.coordinates.keys())
 		self.max_iteration_time = max_iteration_time
-
 		# Seed random number generator
 		self.randomSeed = randomSeed
 		random.seed(randomSeed)
@@ -39,10 +39,13 @@ class GeneticAlgorithm():
 		self.pop_size = pop_size
 		self.num_crossovers = num_crossovers
 		self.num_mutation = num_mutation
+		self.trace = []
 
-		df = pd.read_csv("Data/solutions.csv", header = 0)
-		df.set_index("Instance", inplace=True)
-		self.ideal = 1.0/(df.loc[self.name]['Value'])
+		if test_quality == None:
+			self.ideal = 1.0/7542
+
+		else:
+			self.ideal = 1.0/test_quality
 
 
 	def distance(self, n1, n2):
@@ -269,16 +272,17 @@ class GeneticAlgorithm():
 
 
 	def GeneticAlgo(self):
-        '''
-        Genetic Algorithm process:
-        1. Generate initial population using a combination of All nearest neighbors and random paths
-        2. Keep mutating, crossing over individuals from current population to a new population
-        3. Select the fittest individuals from the current and new population to a new current population
-        4. Repeat till we reach cutoof time or get ideal solution
+		'''
+		Genetic Algorithm process:
+		1. Generate initial population using a combination of All nearest neighbors and random paths
+		2. Keep mutating, crossing over individuals from current population to a new population
+		3. Select the fittest individuals from the current and new population to a new current population
+		4. Repeat till we reach cutoof time or get ideal solution
 		
 		Returns:
 		Best Inidvidual(Path) in Final Population
-        '''
+		'''
+		start_time = time.time()
 		pop_size = self.pop_size
 		solution = []
 		population = [[0 for _ in range(self.N)] for _ in range(pop_size)]
@@ -291,10 +295,9 @@ class GeneticAlgorithm():
 		for i in range(pop_size-self.N):
 			population[i+self.N] = self.random_tour()
 
-		start_time = time.time()
-		direc = self.name+"_LS2_" + str(self.max_iteration_time)+ "_" + str(self.randomSeed) + ".trace"
-		f = open(direc, "w")
+
 		prevBestFitness = float("-inf")
+
 
 		## while time<cutoff time
 		while(self.terminate(time.time()-start_time)!= True):
@@ -302,13 +305,14 @@ class GeneticAlgorithm():
 			bestI, bestFitness = self.getBestIndividual(population)
 			## write to the trace file
 			if bestFitness> prevBestFitness:
-				f.write("%s, " %(round((time.time()-start_time),2)))
-				f.write("%s\n"%ut.get_tour_distance(bestI, self.coordinates) )
+				self.trace.append([round((time.time()-start_time),2),ut.get_tour_distance(bestI, self.coordinates)])
 
 			prevBestFitness = bestFitness
 
-			if bestFitness == self.ideal:
+			if bestFitness >= self.ideal:
 				break
+
+
 
 			## get a mutation pool, then get mutants
 			mutation_pool = self.selectIndividualsForMutation(population)
@@ -329,34 +333,22 @@ class GeneticAlgorithm():
 			## get the final population, by computing fittest individuals from population+newpopulation
 			population = self.globalCompetition(population, newPopulation)
 
-
-		f.close()
 		return self.getBestIndividual(population)
 
-def genetic_tests():
-	'''
-	Tests out genetic algorithm using default parameters.
-	'''
-	all_coordinates = ut.get_all_files()
-	cutoff = '600'
-	randomSeed = '0'
-	for city, coordinates in all_coordinates.items():
-		ga = GeneticAlgorithm(city, coordinates)
 
-		result,_ = ga.GeneticAlgo()
-		direc = city+"_LS2_" + cutoff+ "_" + randomSeed + ".sol"
-		f = open(direc, "w")
-		f.write("%s\n" %ut.get_tour_distance(result, coordinates))
-		for item in result:
-			f.write("%s," %(item-1))
-		f.close()
 
-		print("Results for {}:".format(city))
-		ut.plotTSP(result, coordinates, title = "Genetic Algorithm: "+city, save_path = "Data/Plots/GA/"+city+".png", verbose = True)
-	pass
 
-if __name__ == "__main__":
-	genetic_tests()
+
+def ga_single(file_path, max_time, random_seed = 0,  test_quality = None):
+	coordinates = ut.read_tsp_file(file_path)
+	ga = GeneticAlgorithm(file_path, coordinates, randomSeed = random_seed, max_iteration_time = max_time,  test_quality = test_quality)
+
+	result,_ = ga.GeneticAlgo()
+	cost = ut.get_tour_distance(result, coordinates)
+	trace = ga.trace
+	return cost,result,trace
+
+
 
 	
 
