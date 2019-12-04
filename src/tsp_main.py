@@ -19,6 +19,7 @@ import sys
 import time
 
 from branch_and_bound import BranchAndBoundSolver
+from MST import MSTSolver
 
 
 
@@ -31,7 +32,7 @@ def main():
   time_arg = cli_args.get("-time", None)
   seed_arg = cli_args.get("-seed", None)
   if not inst_arg or not alg_arg or not time_arg or \
-      (not seed_arg and alg_arg in ("Approx", "LS1", "LS2")):
+      (not seed_arg and alg_arg in ("LS1", "LS2")):
     print("Invalid arguments.")
     sys.exit(1)
 
@@ -41,15 +42,15 @@ def main():
   if (alg_arg == "BnB"):
     solver = BranchAndBoundSolver(inst_arg, int(time_arg))
   elif (alg_arg == "Approx"):
-    # MST
-    raise NotImplementedError
+    cost, tour, trace = MSTSolver(inst_arg, int(time_arg)) #Not using solver class
   elif (alg_arg == "LS1"):
     # Simulated Annealing
     raise NotImplementedError
   elif (alg_arg == "LS2"):
     # Genetic
     raise NotImplementedError
-  cost, tour, trace = solver.solve()
+  if (alg_arg == "BnB"):
+    cost, tour, trace = solver.solve()
   inst = os.path.basename(inst_arg).split('.')[0]
   with open("%s_%s_%s.sol" % (inst, alg_arg, time_arg) if seed_arg is None else \
       "%s_%s_%s_%s.sol" % (inst, alg_arg, time_arg, seed_arg), 'w') as solution_file:
