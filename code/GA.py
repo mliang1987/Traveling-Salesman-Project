@@ -7,18 +7,6 @@ import time
 import math
 
 
-"""
-Genetic algorithm is the second of our local searches. Genetic algorithm is inspired by The famous
-'theory of natural evolution' by Charles Darwin. This states that over a long period of time, and a
-sufficiently large population, the fit survive and the weak do not. Following this, we initialize a
-population, either randomly, or using some heuristics, then, in each iteration, we select some of
-the fittest members of the current population, and 'breed' them, to get new members. We also
-'mutate' some of the members with a small probability. Then, of all these new members, and the old
-members, we select the fittest members, and this forms our new population. We repeat this process,
-and end up getting a close to optimal path.
-"""
-
-
 class GeneticAlgorithm():
 
 	def __init__(self, name,  coordinates, randomSeed = 0, pop_size = 300, max_iteration_time = 60, num_crossovers = 140, num_mutation = 250, test_quality = None):
@@ -54,7 +42,7 @@ class GeneticAlgorithm():
 		self.trace = []
 
 		if test_quality == None:
-			self.ideal = 1.0/7542
+			self.ideal = float('inf')
 
 		else:
 			self.ideal = 1.0/test_quality
@@ -358,7 +346,7 @@ def ga_single(file_path, max_time, random_seed = 0,  test_quality = None):
 	result,_ = ga.GeneticAlgo()
 	cost = ut.get_tour_distance(result, coordinates)
 	trace = ga.trace
-	return cost,[x + 1 for x in result],trace
+	return cost,result,trace
 
 
 
