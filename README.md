@@ -29,3 +29,6 @@ annealing, and genetic algorithm.
 
 ## Example
 python3 code/tsp_main.py -inst Data/UKansasState.tsp -alg BnB -time 600
+python3 code/tsp_main.py -inst Data/UKansasState.tsp -alg Approx -time 600
+python3 src/tsp_main.py -inst Data/UKansasState.tsp -alg LS1 -time 5 -seed 0
+python3 src/tsp_main.py -inst Data/UKansasState.tsp -alg LS2 -time 5 -seed 0
