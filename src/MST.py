@@ -258,7 +258,7 @@ def MSTSolver(inst_arg,time_arg):
     #print('cost: ',best_cost)
     #print('time: ',duration)
     #print('trace: ',trace)
-    return best_cost, best_tour, trace
+    return best_cost, [x + 1 for x in best_tour], trace
 
 if __name__ == "__main__":
     MST_tests()
