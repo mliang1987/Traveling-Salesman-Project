@@ -19,11 +19,8 @@ import sys
 import time
 
 from branch_and_bound import BranchAndBoundSolver
-<<<<<<< HEAD
 from MST import MSTSolver
-=======
 import simulated_annealing as sa
->>>>>>> 1d6e4a6f8059ba5eeac4be6dd192fb4b69c487c7
 
 
 
@@ -54,12 +51,7 @@ def main():
   elif (alg_arg == "LS2"):
     # Genetic
     cost, tour, trace = ga.ga_single(inst_arg, float(time_arg), int(seed_arg))
-<<<<<<< HEAD
-  if (alg_arg == "BnB"):
-    cost, tour, trace = solver.solve()
-=======
   
->>>>>>> 1d6e4a6f8059ba5eeac4be6dd192fb4b69c487c7
   inst = os.path.basename(inst_arg).split('.')[0]
   with open("%s_%s_%s.sol" % (inst, alg_arg, time_arg) if seed_arg is None else \
       "%s_%s_%s_%s.sol" % (inst, alg_arg, time_arg, seed_arg), 'w') as solution_file:
