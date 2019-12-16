@@ -2,23 +2,22 @@
 Implementation of 4 solvers for the TSP: branch-and-bound, MST-based approximation, simulated
 annealing, and genetic algorithm.
 
-# Files
-\_ Data: input files.
-  \_ ...
-\_ code
-  \_ requirements.txt: Python dependency modules.
-  \_ __init__.py: Empty file.
-  \_ tsp_main.py: Main program that calls solvers.
-  \_ util.py: Utilities.
-  \_ branch_and_bound.py: Branch-and-bound algorithm implementation.
-  \_ MST.py: MST-approximation algorithm implementation.
-  \_ simulated_annealing.py: Simulated annealing algorithm implementation.
-  \_ annealing_restart.py: Utility for the simulated annealing algorithm implementation.
-  \_ GA.py: Genetic algorithm implementation.
-  \_ sa_experiment1b.py: Code to run the simulated annealing experiment set 1.
-  \_ sa_experiment1.py: Code to run the simulated annealing experiment set 2.
-\_ output: output files.
-  \_ ...
+# Files and Folders
+## Data: Input files.
+## code:
+  * requirements.txt: Python dependency modules.
+  * __init__.py: Empty file.
+  * tsp_main.py: Main program that calls solvers.
+  * util.py: Utilities.
+  * branch_and_bound.py: Branch-and-bound algorithm implementation.
+  * MST.py: MST-approximation algorithm implementation.
+  * simulated_annealing.py: Simulated annealing algorithm implementation.
+  * annealing_restart.py: Utility for the simulated annealing algorithm implementation.
+  * GA.py: Genetic algorithm implementation.
+  * sa_experiment1b.py: Code to run the simulated annealing experiment set 1.
+  * sa_experiment1.py: Code to run the simulated annealing experiment set 2.
+
+## output: Output files.
 
 # Execution
 ## Command-line arguments
