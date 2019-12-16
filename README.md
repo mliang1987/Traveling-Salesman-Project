@@ -1,6 +1,5 @@
 # CSE-6140-Project
-Implementation of 4 solvers for the TSP: branch-and-bound, MST-based approximation, simulated
-annealing, and genetic algorithm.
+Implementation of 6 solvers for the TSP: branch-and-bound, MST-based approximation, nearest-neighbors approximation, all-nearest-neighbors approximation, simulated annealing, and genetic algorithm.
 
 # Files and Folders
 ## Data: Input files.
