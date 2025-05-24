@@ -1,4 +1,4 @@
-# CSE-6140-Project
+# Traveling Salesman Solvers
 Implementation of 6 solvers for the TSP: branch-and-bound, MST-based approximation, nearest-neighbors approximation, all-nearest-neighbors approximation, simulated annealing, and genetic algorithm.
 
 # Files and Folders
